@@ -12,9 +12,5 @@ public class StockManagerApplication {
 		SpringApplication.run(StockManagerApplication.class, args);
 	}
 
-	@Bean
-	BCryptPasswordEncoder bCryptPasswordEncoder(){
-		return  new BCryptPasswordEncoder();
-	}
 
 }
