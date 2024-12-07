@@ -1,4 +1,4 @@
-package mycode.stockmanager.app.products.model;
+package mycode.stockmanager.app.articles.model;
 
 
 
