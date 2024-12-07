@@ -1,13 +1,7 @@
 package mycode.stockmanager.app.location.model;
 
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import mycode.stockmanager.app.products.model.Product;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,11 +29,7 @@ public class Location {
 
 
 
-    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    @ToString.Exclude
-    @JsonManagedReference
-    private Set<Product> products = new HashSet<>();
+
 
 
 }
