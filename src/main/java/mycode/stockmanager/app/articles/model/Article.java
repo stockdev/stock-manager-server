@@ -4,6 +4,7 @@ package mycode.stockmanager.app.articles.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mycode.stockmanager.app.stock.model.Stock;
 
 
 @AllArgsConstructor
@@ -25,7 +26,8 @@ public class Article {
 
     @Column(
             name = "code",
-            nullable = false
+            nullable = false,
+            unique = true
     )
     private String code;
 
@@ -37,7 +39,8 @@ public class Article {
     private String name;
 
 
-
+    @OneToOne(mappedBy = "article",cascade = CascadeType.ALL, orphanRemoval = true)
+    private Stock stock;
 
 
 

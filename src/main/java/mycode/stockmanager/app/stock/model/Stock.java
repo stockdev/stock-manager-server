@@ -3,6 +3,8 @@ package mycode.stockmanager.app.stock.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mycode.stockmanager.app.articles.model.Article;
+import mycode.stockmanager.app.location.model.Location;
 import mycode.stockmanager.app.stock.enums.StockType;
 import mycode.stockmanager.app.stock.enums.SubStockType;
 
@@ -66,4 +68,14 @@ public class Stock {
             nullable = false
     )
     private SubStockType subStockType;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "article_code", referencedColumnName = "code", nullable = false)
+    private Article article;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "location_code", referencedColumnName = "code", nullable = false)
+    private Location location;
+
+
 }

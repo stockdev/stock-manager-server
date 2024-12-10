@@ -1,13 +1,18 @@
 package mycode.stockmanager.app.stock.enums;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
 public enum StockType {
 
-    IN("in"),
-    OUT("out");
+    IN("in:stockIn"),
+    OUT("out:stockOut");
+    // Getter method (optional, since Lombok can handle it)
     private final String stockType;
+
+    StockType(String stockType) {
+        this.stockType = stockType;
+    }
+
 }

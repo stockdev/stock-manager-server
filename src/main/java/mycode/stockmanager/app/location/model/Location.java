@@ -2,6 +2,7 @@ package mycode.stockmanager.app.location.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mycode.stockmanager.app.stock.model.Stock;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,12 +24,20 @@ public class Location {
 
     @Column(
             name = "code",
-            nullable = false
+            nullable = false,
+            unique = true
     )
     private String code;
 
+    @Column(
+            name = "name",
+            nullable = false
+    )
+    private String name;
 
 
+    @OneToOne(mappedBy = "location",cascade = CascadeType.ALL, orphanRemoval = true)
+    private Stock stock;
 
 
 
