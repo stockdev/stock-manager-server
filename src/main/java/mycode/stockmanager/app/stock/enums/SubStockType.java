@@ -3,7 +3,7 @@ package mycode.stockmanager.app.stock.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
+
 @Getter
 public enum SubStockType {
 
@@ -11,4 +11,8 @@ public enum SubStockType {
     RP("rp"),
     P("p:productie");
     private final String subStockType;
+
+    SubStockType(String subStockType) {
+        this.subStockType = subStockType;
+    }
 }
