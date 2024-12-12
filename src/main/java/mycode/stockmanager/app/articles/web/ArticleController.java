@@ -3,6 +3,7 @@ package mycode.stockmanager.app.articles.web;
 
 import lombok.AllArgsConstructor;
 import mycode.stockmanager.app.articles.dtos.ArticleResponse;
+import mycode.stockmanager.app.articles.dtos.ArticleResponseList;
 import mycode.stockmanager.app.articles.dtos.CreateArticleRequest;
 import mycode.stockmanager.app.articles.dtos.UpdateArticleRequest;
 import mycode.stockmanager.app.articles.service.ArticleCommandService;
@@ -30,6 +31,11 @@ public class ArticleController {
     @GetMapping("/getArticleByCode/{code}")
     public ResponseEntity<ArticleResponse> getArticleByCode(@PathVariable String code) {
         return new ResponseEntity<>(articleQueryService.getArticleByCode(code), HttpStatus.OK);
+    }
+
+    @GetMapping("/getAllArticles")
+    public ResponseEntity<ArticleResponseList> getAllArticles(){
+        return new ResponseEntity<>(articleQueryService.getAllArticles(), HttpStatus.OK);
     }
     
     @PostMapping("/createArticle")
