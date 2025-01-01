@@ -28,7 +28,7 @@ import static mycode.stockmanager.app.system.constants.Constants.*;
 @Component
 public class JWTTokenProvider {
 
-    @Value("application.jwt.secretKey")
+    @Value("${spring.jwt.secretKey}")
     private String secret;
 
     public String generateJWTToken(UserDetails user) {
@@ -73,6 +73,7 @@ public class JWTTokenProvider {
         JWTVerifier verifier;
         try {
             Algorithm algorithm = HMAC512(secret);
+            System.out.println(secret);
             verifier = JWT.require(algorithm).withIssuer(MY_CODE).build();
         } catch (JWTVerificationException exception) {
             throw new JWTVerificationException(TOKEN_CANNOT_BE_VERIFIED);
