@@ -2,6 +2,8 @@ package mycode.stockmanager.app.exceptions_handler;
 
 import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
+import mycode.stockmanager.app.stock.exceptions.InvalidStockTransaction;
+import mycode.stockmanager.app.stock.exceptions.NoStockFound;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.exceptions.UserAlreadyExists;
 import org.springframework.http.HttpStatus;
@@ -35,6 +37,20 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler({UserAlreadyExists.class})
     public ResponseEntity<Object> handleUserAlreadyExistsException(UserAlreadyExists exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({NoStockFound.class})
+    public ResponseEntity<Object> handleStockNotFoundException(NoStockFound exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({InvalidStockTransaction.class})
+    public ResponseEntity<Object> handleInvalidStockTransactionException(InvalidStockTransaction exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
