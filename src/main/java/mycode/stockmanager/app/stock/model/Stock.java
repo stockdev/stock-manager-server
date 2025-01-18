@@ -1,6 +1,7 @@
 package mycode.stockmanager.app.stock.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.articles.model.Article;
@@ -71,10 +72,12 @@ public class Stock {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "article_code", referencedColumnName = "code", nullable = false)
+    @JsonManagedReference
     private Article article;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "location_code", referencedColumnName = "code", nullable = false)
+    @JsonManagedReference
     private Location location;
 
 

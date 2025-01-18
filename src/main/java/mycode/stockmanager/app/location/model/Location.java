@@ -1,5 +1,6 @@
 package mycode.stockmanager.app.location.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.stock.model.Stock;
@@ -37,6 +38,7 @@ public class Location {
 
 
     @OneToOne(mappedBy = "location",cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private Stock stock;
 
 

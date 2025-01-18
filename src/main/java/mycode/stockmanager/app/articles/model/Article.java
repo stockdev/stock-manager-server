@@ -2,6 +2,7 @@ package mycode.stockmanager.app.articles.model;
 
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.stock.model.Stock;
@@ -40,6 +41,7 @@ public class Article {
 
 
     @OneToOne(mappedBy = "article",cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private Stock stock;
 
 

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import mycode.stockmanager.app.stock.dtos.CreateStockRequest;
 import mycode.stockmanager.app.stock.dtos.StockResponse;
+import mycode.stockmanager.app.stock.dtos.UpdateStockRequest;
 import mycode.stockmanager.app.stock.service.StockCommandService;
 import mycode.stockmanager.app.stock.service.StockQueryService;
 import org.springframework.http.HttpStatus;
@@ -34,5 +35,15 @@ public class StockController {
     @PostMapping("/createStockTransaction")
     public ResponseEntity<StockResponse> createStock(@RequestBody CreateStockRequest createStockRequest){
         return new ResponseEntity<>(stockCommandService.createStockTransaction(createStockRequest), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/updateStockTransaction/{stockId}")
+    public ResponseEntity<StockResponse> updateStock(@RequestBody UpdateStockRequest updateStockRequest, @PathVariable Long stockId){
+        return new ResponseEntity<>(stockCommandService.updateStockTransaction(stockId,updateStockRequest), HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/deleteStockTransaction/{stockID}")
+    public ResponseEntity<StockResponse> deleteStock(@PathVariable Long stockID){
+        return new ResponseEntity<>(stockCommandService.deleteStockTransaction(stockID), HttpStatus.OK);
     }
 }
