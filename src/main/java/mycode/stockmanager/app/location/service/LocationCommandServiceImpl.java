@@ -4,12 +4,15 @@ import lombok.AllArgsConstructor;
 import mycode.stockmanager.app.location.dtos.CreateLocationRequest;
 import mycode.stockmanager.app.location.dtos.LocationResponse;
 import mycode.stockmanager.app.location.dtos.UpdateLocationRequest;
+import mycode.stockmanager.app.location.exceptions.LocationAlreadyExists;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
 import mycode.stockmanager.app.location.mapper.LocationMapper;
 import mycode.stockmanager.app.location.model.Location;
 import mycode.stockmanager.app.location.repository.LocationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -20,6 +23,13 @@ public class LocationCommandServiceImpl implements LocationCommandService{
     @Override
     public LocationResponse createLocation(CreateLocationRequest createLocationRequest) {
         Location location = LocationMapper.createLocationRequestToLocation(createLocationRequest);
+        List<Location> list = locationRepository.findAll();
+
+        list.forEach(location1 -> {
+            if(location.getCode().equals(location1.getCode())){
+                throw new LocationAlreadyExists("Location with this code already exists");
+            }
+        });
 
         locationRepository.saveAndFlush(location);
 

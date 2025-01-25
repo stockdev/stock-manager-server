@@ -1,6 +1,7 @@
 package mycode.stockmanager.app.exceptions_handler;
 
 import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
+import mycode.stockmanager.app.location.exceptions.LocationAlreadyExists;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
 import mycode.stockmanager.app.stock.exceptions.InvalidStockTransaction;
 import mycode.stockmanager.app.stock.exceptions.NoStockFound;
@@ -51,6 +52,13 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler({InvalidStockTransaction.class})
     public ResponseEntity<Object> handleInvalidStockTransactionException(InvalidStockTransaction exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({LocationAlreadyExists.class})
+    public ResponseEntity<Object> handleLocationAlreadyExistsException(LocationAlreadyExists exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());

@@ -74,15 +74,15 @@ public class ArticleController {
             XSSFSheet sheet = workbook.createSheet("Articles");
 
             Row headerRow = sheet.createRow(0);
-            headerRow.createCell(1).setCellValue("Code");
-            headerRow.createCell(2).setCellValue("Name");
+            headerRow.createCell(0).setCellValue("Code");
+            headerRow.createCell(1).setCellValue("Name");
 
 
             int rowCount = 1;
             for (ArticleResponse article : articles.list()) {
                 Row row = sheet.createRow(rowCount++);
-                row.createCell(1).setCellValue(article.code());
-                row.createCell(2).setCellValue(article.name());
+                row.createCell(0).setCellValue(article.code());
+                row.createCell(1).setCellValue(article.name());
             }
             workbook.write(response.getOutputStream());
             workbook.close();

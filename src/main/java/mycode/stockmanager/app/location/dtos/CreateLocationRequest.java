@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-public record CreateLocationRequest(@NotNull String name, @NotNull String code) {
+public record CreateLocationRequest(@NotNull String code) {
 }
