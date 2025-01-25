@@ -9,6 +9,7 @@ import mycode.stockmanager.app.location.mapper.LocationMapper;
 import mycode.stockmanager.app.location.model.Location;
 import mycode.stockmanager.app.location.repository.LocationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
 @Service
@@ -47,6 +48,12 @@ public class LocationCommandServiceImpl implements LocationCommandService{
         locationRepository.delete(location);
 
         return locationResponse;
+    }
+
+    @Transactional
+    public void deleteAllLocationsAndResetSequence() {
+        locationRepository.deleteAll();
+        locationRepository.resetLocationSequence();
     }
 
     @Override

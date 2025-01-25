@@ -13,4 +13,6 @@ public interface LocationCommandService  {
     LocationResponse deleteLocationByCode(String code);
 
     LocationResponse deleteLocationById(long id);
+
+    void deleteAllLocationsAndResetSequence();
 }
