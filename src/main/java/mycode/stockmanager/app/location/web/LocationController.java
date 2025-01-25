@@ -73,13 +73,11 @@ public class LocationController {
             XSSFSheet sheet = workbook.createSheet("Locations");
 
             Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("ID");
             headerRow.createCell(1).setCellValue("Code");
 
             int rowCount = 1;
             for (LocationResponse location : locations.list()) {
                 Row row = sheet.createRow(rowCount++);
-                row.createCell(0).setCellValue(location.id());
                 row.createCell(1).setCellValue(location.code());
             }
 

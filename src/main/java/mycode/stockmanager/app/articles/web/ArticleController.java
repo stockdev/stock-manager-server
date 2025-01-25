@@ -74,7 +74,6 @@ public class ArticleController {
             XSSFSheet sheet = workbook.createSheet("Articles");
 
             Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("ID");
             headerRow.createCell(1).setCellValue("Code");
             headerRow.createCell(2).setCellValue("Name");
 
@@ -82,7 +81,6 @@ public class ArticleController {
             int rowCount = 1;
             for (ArticleResponse article : articles.list()) {
                 Row row = sheet.createRow(rowCount++);
-                row.createCell(0).setCellValue(article.id());
                 row.createCell(1).setCellValue(article.code());
                 row.createCell(2).setCellValue(article.name());
             }
