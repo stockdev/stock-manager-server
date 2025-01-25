@@ -13,4 +13,7 @@ public interface ArticleCommandService {
     ArticleResponse deleteArticleByCode(String code);
 
     ArticleResponse deleteArticleById(long id);
+
+    void deleteAllArticlesAndResetSequence();
+
 }

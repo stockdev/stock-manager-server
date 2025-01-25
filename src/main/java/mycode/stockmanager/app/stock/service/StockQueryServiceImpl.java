@@ -24,7 +24,7 @@ public class StockQueryServiceImpl implements StockQueryService{
     }
 
     @Override
-    public StockResponse getStockByOrderNumber(int orderNumber) {
+    public StockResponse getStockByOrderNumber(String orderNumber) {
         Stock stock = stockRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new NoStockFound("No stock with this order number found"));
 

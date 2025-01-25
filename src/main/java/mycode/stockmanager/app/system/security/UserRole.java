@@ -14,7 +14,7 @@ public enum UserRole {
 
     ADMIN(Sets.newHashSet(UserPermission.USER_READ,UserPermission.USER_WRITE)),
     MANAGER(Sets.newHashSet(UserPermission.USER_READ)),
-    HELPER(Sets.newHashSet(UserPermission.USER_READ));
+    UTILIZATOR(Sets.newHashSet(UserPermission.USER_READ));
     private final Set<UserPermission> permissions;
 
     public Set<SimpleGrantedAuthority> getGrantedAuthorities(){

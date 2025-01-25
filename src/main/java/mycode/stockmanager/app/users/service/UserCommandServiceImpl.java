@@ -31,7 +31,7 @@ public class UserCommandServiceImpl implements UserCommandService{
                 .password(passwordEncoder.encode(createUserRequest.password()))
                 .fullName(createUserRequest.fullName())
                 .email(createUserRequest.email())
-                .userRole(UserRole.HELPER)
+                .userRole(createUserRequest.userRole())
                 .build();
 
         List<User> list = userRepository.findAll();

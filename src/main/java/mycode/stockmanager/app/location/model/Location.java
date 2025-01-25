@@ -30,12 +30,6 @@ public class Location {
     )
     private String code;
 
-    @Column(
-            name = "name",
-            nullable = false
-    )
-    private String name;
-
 
     @OneToOne(mappedBy = "location",cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference

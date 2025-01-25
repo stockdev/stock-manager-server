@@ -32,7 +32,7 @@ public class Stock {
             name = "order_number",
             nullable = false
     )
-    private int orderNumber;
+    private String orderNumber;
 
     @Column(
             name = "quantity",

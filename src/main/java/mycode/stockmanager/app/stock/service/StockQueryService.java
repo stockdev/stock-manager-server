@@ -6,6 +6,6 @@ public interface StockQueryService {
 
     StockResponse getStockById(Long id);
 
-    StockResponse getStockByOrderNumber(int orderNumber);
+    StockResponse getStockByOrderNumber(String orderNumber);
 
 }

@@ -13,13 +13,11 @@ public class LocationMapper {
         return LocationResponse.builder()
                 .code(location.getCode())
                 .id(location.getId())
-                .name(location.getName())
                 .stock(location.getStock()).build();
     }
 
     public static Location createLocationRequestToLocation(CreateLocationRequest createLocationRequest){
         return Location.builder()
-                .code(createLocationRequest.code())
-                .name(createLocationRequest.name()).build();
+                .code(createLocationRequest.code()).build();
     }
 }

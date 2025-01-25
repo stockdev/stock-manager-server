@@ -9,6 +9,7 @@ import mycode.stockmanager.app.articles.mapper.ArticleMapper;
 import mycode.stockmanager.app.articles.model.Article;
 import mycode.stockmanager.app.articles.repository.ArticleRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -54,6 +55,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
     }
 
+
     @Override
     public ArticleResponse deleteArticleById(long id) {
         Article article = articleRepository.findById(id)
@@ -65,6 +67,14 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
         return articleResponse;
     }
+
+    @Transactional
+    public void deleteAllArticlesAndResetSequence() {
+        articleRepository.deleteAll();
+        articleRepository.resetArticleIdSequence();
+    }
+
+
 
 
 }

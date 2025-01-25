@@ -31,7 +31,6 @@ public class LocationCommandServiceImpl implements LocationCommandService{
                 .orElseThrow(() -> new NoLocationFound("No location with this id found"));
 
         location.setCode(updateLocationRequest.code());
-        location.setName(updateLocationRequest.name());
 
         locationRepository.save(location);
 

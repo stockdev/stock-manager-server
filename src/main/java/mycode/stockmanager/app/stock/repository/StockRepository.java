@@ -10,6 +10,6 @@ public interface StockRepository extends JpaRepository<Stock, Integer> {
 
     Optional<Stock> findById(Long id);
 
-    Optional<Stock> findByOrderNumber(int orderNumber);
+    Optional<Stock> findByOrderNumber(String orderNumber);
 
 }

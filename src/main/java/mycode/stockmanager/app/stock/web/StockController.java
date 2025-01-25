@@ -28,7 +28,7 @@ public class StockController {
     }
 
     @GetMapping("/getStockByOrderNumber/{orderNumber}")
-    public ResponseEntity<StockResponse> getStockByOrderNumber(@PathVariable int orderNumber){
+    public ResponseEntity<StockResponse> getStockByOrderNumber(@PathVariable String orderNumber){
         return new ResponseEntity<>(stockQueryService.getStockByOrderNumber(orderNumber), HttpStatus.OK);
     }
 
