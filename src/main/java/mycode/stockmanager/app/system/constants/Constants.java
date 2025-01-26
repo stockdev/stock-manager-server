@@ -21,7 +21,7 @@ public class Constants {
 
     public static final String APPLICATION_JSON_VALUE = "APPLICATION VALUE";
 
-    public static final String[] PUBLIC_URLS = {"/swagger-ui.html","/swagger-ui/**","/stock-manager/api/**"};
+    public static final String[] PUBLIC_URLS = {"/swagger-ui.html","/swagger-ui/**","/stock-manager/api/**", "/v3/**" };
 
     public static final String JWT_TOKEN_HEADER = "Jwt-Token";
 

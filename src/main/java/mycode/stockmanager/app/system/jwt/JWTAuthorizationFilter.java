@@ -28,6 +28,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
         if (request.getMethod().equalsIgnoreCase(OPTIONS_HTTP_METHOD)) {
             response.setStatus(OK.value());
         } else {
