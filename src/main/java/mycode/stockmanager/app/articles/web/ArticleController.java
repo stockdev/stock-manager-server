@@ -95,6 +95,13 @@ public class ArticleController {
         }
     }
 
+    @DeleteMapping("/deleteAllArticles")
+    public ResponseEntity<?> deleteAllArticles(HttpServletResponse response){
+        articleCommandService.deleteAllArticlesAndResetSequence();
+
+        return ResponseEntity.ok("Deleted all articles");
+    }
+
 
 
 }
