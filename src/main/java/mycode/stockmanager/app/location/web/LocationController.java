@@ -94,4 +94,10 @@ public class LocationController {
         }
     }
 
+    @DeleteMapping("/deleteAllLocations")
+    public ResponseEntity<?> deleteAllArticles(){
+        locationCommandService.deleteAllLocationsAndResetSequence();
+
+        return ResponseEntity.ok("Deleted all locations");
+    }
 }
