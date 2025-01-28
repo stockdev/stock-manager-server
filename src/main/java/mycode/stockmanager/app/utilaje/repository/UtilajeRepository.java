@@ -1,13 +1,12 @@
 package mycode.stockmanager.app.utilaje.repository;
 
-import mycode.stockmanager.app.utilaje.model.Utilaje;
-import org.checkerframework.checker.nullness.Opt;
+import mycode.stockmanager.app.utilaje.model.Utilaj;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UtilajeRepository extends JpaRepository<Utilaje, Long> {
+public interface UtilajeRepository extends JpaRepository<Utilaj, Long> {
 
-    Optional<Utilaje> findUtilajeById(Long id);
+    Optional<Utilaj> findUtilajeById(Long id);
 
 }

@@ -13,7 +13,7 @@ import lombok.*;
 @Builder
 @Table(name = "utilaje")
 @Entity(name = "Utilaje")
-public class Utilaje {
+public class Utilaj {
 
     @Id
     @SequenceGenerator(name = "utilaje_sequence", sequenceName = "utilaje_sequence", allocationSize = 1)
