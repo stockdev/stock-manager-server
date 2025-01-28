@@ -7,6 +7,7 @@ import mycode.stockmanager.app.stock.exceptions.InvalidStockTransaction;
 import mycode.stockmanager.app.stock.exceptions.NoStockFound;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.exceptions.UserAlreadyExists;
+import mycode.stockmanager.app.utilaje.exceptions.NoUtilajFound;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -59,6 +60,13 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler({LocationAlreadyExists.class})
     public ResponseEntity<Object> handleLocationAlreadyExistsException(LocationAlreadyExists exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({NoUtilajFound.class})
+    public ResponseEntity<Object> handleUtilajNotFoundException(NoUtilajFound exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
