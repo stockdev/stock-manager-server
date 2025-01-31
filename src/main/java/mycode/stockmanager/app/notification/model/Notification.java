@@ -41,10 +41,7 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    @Column(
-            name = "message",
-            nullable = false
-    )
+    @Column(name = "message", nullable = false)
     private String message;
 
 
