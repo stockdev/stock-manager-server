@@ -3,6 +3,7 @@ package mycode.stockmanager.app.users.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import mycode.stockmanager.app.notification.model.Notification;
 import mycode.stockmanager.app.system.security.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
@@ -73,6 +75,10 @@ public class User implements UserDetails {
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Notification> notifications;
 
     public User(Long id, String fullName, String phoneNumber, String email, String password, UserRole userRole, LocalDateTime registeredAt, LocalDateTime createdAt, boolean active) {
         this.id = id;
