@@ -10,7 +10,8 @@ import java.util.Set;
 public enum NotificationType {
 
     INFORMATION(Set.of()),
-    WARNING(Set.of());
+    WARNING(Set.of()),
+    ERROR(Set.of());
     private final Set<NotificationType> notificationTypes;
 
 }

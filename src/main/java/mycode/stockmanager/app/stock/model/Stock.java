@@ -82,10 +82,6 @@ public class Stock {
     @JsonManagedReference
     private Location location;
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Notification> notifications;
-
 
 
 }

@@ -4,5 +4,5 @@ import mycode.stockmanager.app.notification.dtos.NotificationResponseList;
 
 public interface NotificationQueryService {
 
-    NotificationResponseList getAllNotification();
+    NotificationResponseList getAllNotifications();
 }

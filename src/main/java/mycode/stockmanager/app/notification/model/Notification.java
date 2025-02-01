@@ -50,9 +50,5 @@ public class Notification {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stock_id", nullable = false)
-    private Stock stock;
 
 }

@@ -10,8 +10,7 @@ public class NotificationMapper {
         return NotificationResponse.builder()
                 .message(notification.getMessage())
                 .notificationType(notification.getNotificationType())
-                .user(notification.getUser())
-                .stock(notification.getStock()).build();
+                .user(notification.getUser()).build();
 
     }
 }

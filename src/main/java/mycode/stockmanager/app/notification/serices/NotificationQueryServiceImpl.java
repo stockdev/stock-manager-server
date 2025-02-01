@@ -19,7 +19,7 @@ public class NotificationQueryServiceImpl implements NotificationQueryService{
     private NotificationRepository notificationRepository;
 
     @Override
-    public NotificationResponseList getAllNotification() {
+    public NotificationResponseList getAllNotifications() {
         List<Notification> list = notificationRepository.findAll();
 
         List<NotificationResponse> responses = new ArrayList<>();
