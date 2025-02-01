@@ -6,12 +6,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.articles.model.Article;
 import mycode.stockmanager.app.location.model.Location;
-import mycode.stockmanager.app.notification.model.Notification;
 import mycode.stockmanager.app.stock.enums.StockType;
 import mycode.stockmanager.app.stock.enums.SubStockType;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor

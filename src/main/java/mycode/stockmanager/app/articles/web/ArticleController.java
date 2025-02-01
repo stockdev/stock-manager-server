@@ -41,19 +41,19 @@ public class ArticleController {
         return new ResponseEntity<>(articleQueryService.getAllArticles(), HttpStatus.OK);
     }
     
-    @PostMapping("/createArticle")
-    public ResponseEntity<ArticleResponse> createArticle(@RequestBody CreateArticleRequest createArticleRequest) {
-        return new ResponseEntity<>(articleCommandService.createArticle(createArticleRequest), HttpStatus.CREATED);
+    @PostMapping("/createArticle/user/{userId}")
+    public ResponseEntity<ArticleResponse> createArticle(@RequestBody CreateArticleRequest createArticleRequest,@PathVariable long userId) {
+        return new ResponseEntity<>(articleCommandService.createArticle(createArticleRequest, userId), HttpStatus.CREATED);
     }
     
-    @PutMapping("/updateArticle/{articleId}")
-    public ResponseEntity<ArticleResponse> updateArticle(@PathVariable long articleId, @RequestBody UpdateArticleRequest updateArticleRequest) {
-        return new ResponseEntity<>(articleCommandService.updateArticle(updateArticleRequest, articleId), HttpStatus.OK);
+    @PutMapping("/updateArticle/{articleId}/user/{userId}")
+    public ResponseEntity<ArticleResponse> updateArticle(@PathVariable long articleId, @RequestBody UpdateArticleRequest updateArticleRequest, @PathVariable long userId) {
+        return new ResponseEntity<>(articleCommandService.updateArticle(updateArticleRequest, articleId, userId), HttpStatus.OK);
     }
     
-    @DeleteMapping("/deleteArticleById/{articleId}")
-    public ResponseEntity<ArticleResponse> deleteArticleById(@PathVariable long articleId) {
-        return new ResponseEntity<>(articleCommandService.deleteArticleById(articleId),HttpStatus.OK);
+    @DeleteMapping("/deleteArticleById/{articleId}/user/{userId}")
+    public ResponseEntity<ArticleResponse> deleteArticleById(@PathVariable long articleId, @PathVariable long userId) {
+        return new ResponseEntity<>(articleCommandService.deleteArticleById(articleId, userId),HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteArticleByCode/{articleCode}")
@@ -61,8 +61,8 @@ public class ArticleController {
         return new ResponseEntity<>(articleCommandService.deleteArticleByCode(articleCode),HttpStatus.OK);
     }
 
-    @GetMapping("/exportArticles")
-    public ResponseEntity<?> exportArticles(HttpServletResponse response) {
+    @GetMapping("/exportArticles/user/{userId}")
+    public ResponseEntity<?> exportArticles(HttpServletResponse response, @PathVariable long userId) {
         try {
             ArticleResponseList articles = articleQueryService.getAllArticles();
 
@@ -86,7 +86,7 @@ public class ArticleController {
             workbook.write(response.getOutputStream());
             workbook.close();
 
-            articleCommandService.deleteAllArticlesAndResetSequence();
+            articleCommandService.deleteAllArticlesAndResetSequence(userId);
 
             return ResponseEntity.ok("Exported " + articles.list().size() + " articles to Excel successfully.");
         } catch (Exception e) {
@@ -95,9 +95,9 @@ public class ArticleController {
         }
     }
 
-    @DeleteMapping("/deleteAllArticles")
-    public ResponseEntity<?> deleteAllArticles(){
-        articleCommandService.deleteAllArticlesAndResetSequence();
+    @DeleteMapping("/deleteAllArticles/user/{userId}")
+    public ResponseEntity<?> deleteAllArticles(@PathVariable long userId){
+        articleCommandService.deleteAllArticlesAndResetSequence(userId);
 
         return ResponseEntity.ok("Deleted all articles");
     }

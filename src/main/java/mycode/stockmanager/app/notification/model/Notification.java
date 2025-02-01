@@ -4,7 +4,6 @@ package mycode.stockmanager.app.notification.model;
 import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.notification.notification_type.NotificationType;
-import mycode.stockmanager.app.stock.model.Stock;
 import mycode.stockmanager.app.users.model.User;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
