@@ -6,14 +6,13 @@ import mycode.stockmanager.app.articles.dtos.UpdateArticleRequest;
 
 public interface ArticleCommandService {
 
-    ArticleResponse createArticle(CreateArticleRequest createArticleRequest, long userId);
+    ArticleResponse createArticle(CreateArticleRequest createArticleRequest);
 
-    ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest, long id, long userId);
+    ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest, long id);
 
-    ArticleResponse deleteArticleByCode(String code);
+    String  deleteArticleByCode(String code);
 
-    ArticleResponse deleteArticleById(long id,long userId);
 
-    void deleteAllArticlesAndResetSequence(long userId);
+    void deleteAllArticlesAndResetSequence();
 
 }

@@ -1,5 +1,6 @@
 package mycode.stockmanager.app.exceptions_handler;
 
+import mycode.stockmanager.app.articles.exceptions.AlreadyExistsArticle;
 import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
 import mycode.stockmanager.app.location.exceptions.LocationAlreadyExists;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
@@ -69,6 +70,13 @@ public class GlobalExceptionsHandler {
     public ResponseEntity<Object> handleUtilajNotFoundException(NoUtilajFound exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({AlreadyExistsArticle.class})
+    public ResponseEntity<Object> handleAlreadyExistsArticleException(AlreadyExistsArticle exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(exception.getMessage());
     }
 }
