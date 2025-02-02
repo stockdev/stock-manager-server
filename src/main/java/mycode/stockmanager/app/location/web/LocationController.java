@@ -39,19 +39,19 @@ public class LocationController {
         return new ResponseEntity<>(locationQueryService.getAllLocations(), HttpStatus.OK);
     }
 
-    @PostMapping("/createLocation")
-    public ResponseEntity<LocationResponse> createLocation(@RequestBody CreateLocationRequest createLocationRequest) {
-        return new ResponseEntity<>(locationCommandService.createLocation(createLocationRequest), HttpStatus.CREATED);
+    @PostMapping("/createLocation/user/{userId}")
+    public ResponseEntity<LocationResponse> createLocation(@RequestBody CreateLocationRequest createLocationRequest, @PathVariable long userId) {
+        return new ResponseEntity<>(locationCommandService.createLocation(createLocationRequest, userId), HttpStatus.CREATED);
     }
 
-    @PutMapping("/updateLocation/{locationId}")
-    public ResponseEntity<LocationResponse> updateLocation(@PathVariable long locationId, @RequestBody UpdateLocationRequest updateLocationRequest) {
-        return new ResponseEntity<>(locationCommandService.updateLocation(updateLocationRequest, locationId), HttpStatus.OK);
+    @PutMapping("/updateLocation/{locationId}/user/{userId}")
+    public ResponseEntity<LocationResponse> updateLocation(@PathVariable long locationId, @RequestBody UpdateLocationRequest updateLocationRequest, @PathVariable long userId) {
+        return new ResponseEntity<>(locationCommandService.updateLocation(updateLocationRequest, locationId, userId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/deleteLocationById/{locationId}")
-    public ResponseEntity<LocationResponse> deleteLocationById(@PathVariable long locationId) {
-        return new ResponseEntity<>(locationCommandService.deleteLocationById(locationId), HttpStatus.OK);
+    @DeleteMapping("/deleteLocationById/{locationId}/user/{userId}")
+    public ResponseEntity<LocationResponse> deleteLocationById(@PathVariable long locationId, @PathVariable long userId) {
+        return new ResponseEntity<>(locationCommandService.deleteLocationById(locationId, userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteLocationByCode/{locationCode}")
@@ -59,8 +59,8 @@ public class LocationController {
         return new ResponseEntity<>(locationCommandService.deleteLocationByCode(locationCode), HttpStatus.OK);
     }
 
-    @GetMapping("/exportLocations")
-    public ResponseEntity<?> exportLocations(HttpServletResponse response) {
+    @GetMapping("/exportLocations/user/{userId}")
+    public ResponseEntity<?> exportLocations(HttpServletResponse response, @PathVariable long userId) {
         try {
 
             LocationResponseList locations = locationQueryService.getAllLocations();
@@ -84,7 +84,7 @@ public class LocationController {
             workbook.write(response.getOutputStream());
             workbook.close();
 
-            locationCommandService.deleteAllLocationsAndResetSequence();
+            locationCommandService.deleteAllLocationsAndResetSequence(userId);
 
             return ResponseEntity.ok("Exported " + locations.list().size() + " locations to Excel successfully.");
         } catch (Exception e) {
@@ -94,9 +94,9 @@ public class LocationController {
         }
     }
 
-    @DeleteMapping("/deleteAllLocations")
-    public ResponseEntity<?> deleteAllArticles(){
-        locationCommandService.deleteAllLocationsAndResetSequence();
+    @DeleteMapping("/deleteAllLocations/user/{userId}")
+    public ResponseEntity<?> deleteAllArticles(@PathVariable long userId){
+        locationCommandService.deleteAllLocationsAndResetSequence(userId);
 
         return ResponseEntity.ok("Deleted all locations");
     }
