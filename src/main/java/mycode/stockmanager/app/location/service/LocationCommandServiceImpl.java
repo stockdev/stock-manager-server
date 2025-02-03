@@ -15,18 +15,20 @@ import mycode.stockmanager.app.notification.repository.NotificationRepository;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.model.User;
 import mycode.stockmanager.app.users.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
 public class LocationCommandServiceImpl implements LocationCommandService{
 
-    private LocationRepository locationRepository;
-    private UserRepository userRepository;
-    private NotificationRepository notificationRepository;
+    private final LocationRepository locationRepository;
+    private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
     private void createAndSaveNotification(User user, String message) {
         Notification notification = Notification.builder()
@@ -38,21 +40,26 @@ public class LocationCommandServiceImpl implements LocationCommandService{
         notificationRepository.saveAndFlush(notification);
     }
 
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NoUserFound("User not found"));
+    }
+
     @Override
-    public LocationResponse createLocation(CreateLocationRequest createLocationRequest, long userId) {
+    public LocationResponse createLocation(CreateLocationRequest createLocationRequest) {
+        User user = getAuthenticatedUser();
+
+        Optional<Location> locationByCode = locationRepository.findByCode(createLocationRequest.code());
+
+        if(locationByCode.isPresent()){
+            throw new LocationAlreadyExists("Location with this code already exists try again with a different code");
+        }
+
         Location location = LocationMapper.createLocationRequestToLocation(createLocationRequest);
-        List<Location> list = locationRepository.findAll();
-
-        list.forEach(location1 -> {
-            if(location.getCode().equals(location1.getCode())){
-                throw new LocationAlreadyExists("Location with this code already exists");
-            }
-        });
-
         locationRepository.saveAndFlush(location);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
 
         String message = "User: " + user.getEmail() + " created location with code: " + location.getCode();
         createAndSaveNotification(user, message);
@@ -61,16 +68,22 @@ public class LocationCommandServiceImpl implements LocationCommandService{
     }
 
     @Override
-    public LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, long id, long userId) {
+    public LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, long id) {
+        User user = getAuthenticatedUser();
+
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new NoLocationFound("No location with this id found"));
+
+        if(updateLocationRequest.code() != null && !updateLocationRequest.code().equals(location.getCode())) {
+            Optional<Location> locationByCode = locationRepository.findByCode(updateLocationRequest.code());
+            if (locationByCode.isPresent()) {
+                throw new LocationAlreadyExists("Article with this code already exists try again with different code");
+            }
+        }
 
         location.setCode(updateLocationRequest.code());
 
         locationRepository.save(location);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
 
         String message = "User: " + user.getEmail() + " updated article with code: " + location.getCode();
         createAndSaveNotification(user, message);
@@ -79,47 +92,31 @@ public class LocationCommandServiceImpl implements LocationCommandService{
     }
 
     @Override
-    public LocationResponse deleteLocationByCode(String code) {
+    public String deleteLocationByCode(String code) {
+        User user = getAuthenticatedUser();
+
         Location location = locationRepository.findByCode(code)
                 .orElseThrow(() -> new NoLocationFound("No location with this code found"));
 
         LocationResponse locationResponse = LocationMapper.locationToResponseDto(location);
+        String message = "User: " + user.getEmail() + " deleted location with code: " + locationResponse.code();
+        createAndSaveNotification(user, message);
+
 
         locationRepository.delete(location);
 
-        return locationResponse;
+        return "Article with code  " + locationResponse.code() + " was deleted";
     }
 
     @Transactional
-    public void deleteAllLocationsAndResetSequence(long userId) {
+    public void deleteAllLocationsAndResetSequence() {
+        User user = getAuthenticatedUser();
+
         locationRepository.deleteAll();
         locationRepository.resetLocationSequence();
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
 
         String message = "User: " + user.getEmail() + " deleted all locations";
         createAndSaveNotification(user, message);
     }
 
-    @Override
-    public LocationResponse deleteLocationById(long id, long userId) {
-        Location location = locationRepository.findById(id)
-                .orElseThrow(() -> new NoLocationFound("No location with this id found"));
-
-        LocationResponse locationResponse = LocationMapper.locationToResponseDto(location);
-
-        String locationCode = location.getCode();
-
-        locationRepository.delete(location);
-
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
-
-        String message = "User: " + user.getEmail() + " deleted location with code: " + locationCode;
-        createAndSaveNotification(user, message);
-
-        return locationResponse;
-    }
 }

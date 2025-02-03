@@ -40,7 +40,7 @@ public class GlobalExceptionsHandler {
     @ExceptionHandler({UserAlreadyExists.class})
     public ResponseEntity<Object> handleUserAlreadyExistsException(UserAlreadyExists exception) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.CONFLICT)
                 .body(exception.getMessage());
     }
 
@@ -54,14 +54,14 @@ public class GlobalExceptionsHandler {
     @ExceptionHandler({InvalidStockTransaction.class})
     public ResponseEntity<Object> handleInvalidStockTransactionException(InvalidStockTransaction exception) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.CONFLICT)
                 .body(exception.getMessage());
     }
 
     @ExceptionHandler({LocationAlreadyExists.class})
     public ResponseEntity<Object> handleLocationAlreadyExistsException(LocationAlreadyExists exception) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.CONFLICT)
                 .body(exception.getMessage());
     }
 

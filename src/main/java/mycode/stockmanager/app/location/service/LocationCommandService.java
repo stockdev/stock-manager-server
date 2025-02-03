@@ -6,13 +6,11 @@ import mycode.stockmanager.app.location.dtos.UpdateLocationRequest;
 
 public interface LocationCommandService  {
 
-    LocationResponse createLocation(CreateLocationRequest createLocationRequest, long userId);
+    LocationResponse createLocation(CreateLocationRequest createLocationRequest);
 
-    LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, long id, long userId);
+    LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, long id);
 
-    LocationResponse deleteLocationByCode(String code);
+    String deleteLocationByCode(String code);
 
-    LocationResponse deleteLocationById(long id, long userId);
-
-    void deleteAllLocationsAndResetSequence(long userId);
+    void deleteAllLocationsAndResetSequence();
 }
