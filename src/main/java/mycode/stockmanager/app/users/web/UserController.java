@@ -30,57 +30,26 @@ public class UserController {
     private final JWTTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    @GetMapping(path = "/getUserById/{userId}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable long userId){
-        return new ResponseEntity<>(userQueryService.findUserById(userId), HttpStatus.OK);
-    }
 
-    @PostMapping("/addUser")
-    public ResponseEntity<UserResponse> addUser(@RequestBody CreateUserRequest createUserRequest){
-        return new ResponseEntity<>(userCommandService.createUser(createUserRequest), HttpStatus.CREATED);
-    }
-
-    @DeleteMapping(path = "/deleteUserById/{userId}")
-    public ResponseEntity<UserResponse> deleteUser(@PathVariable long userId){
-        return new ResponseEntity<>(userCommandService.deleteUser(userId), HttpStatus.CREATED);
-    }
-
-    @PutMapping(path = "/updateUserById/{userId}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable long userId, @RequestBody UpdateUserRequest updateUserRequest){
-    return new ResponseEntity<>(userCommandService.updateUser(updateUserRequest, userId), HttpStatus.ACCEPTED);
-    }
 
     @GetMapping("/getAllUsers")
     public ResponseEntity<UserResponseList> getAllUsers(){
         return new ResponseEntity<>(userQueryService.getAllUsers(),HttpStatus.OK);
     }
 
-    @GetMapping("/getUserRole")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_HELPER')")
-    public ResponseEntity<String> getUserRole(@RequestHeader("Authorization") String token) {
-        try {
-            String tokenValue = extractToken(token);
-            String username = jwtTokenProvider.getSubject(tokenValue);
-            if (jwtTokenProvider.isTokenValid(username, tokenValue)) {
-                User loginUser = userQueryService.findByEmail(username);
-                return ResponseEntity.ok(loginUser.getUserRole().toString());
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
-            }
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while verifying token");
-        }
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_UTILIZATOR')")
+    @DeleteMapping("/delete/{email}")
+    public ResponseEntity<String> deleteUser(@PathVariable String email) {
+        String responseMessage = userCommandService.deleteUser(email);
+        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
     }
 
-    public String extractToken(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
-        } else {
-            throw new IllegalArgumentException("Invalid Authorization header");
-        }
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER') or hasRole('ROLE_UTILIZATOR')")
+    @PutMapping("/update/{email}")
+    public ResponseEntity<UserResponse> updateUser(@RequestBody UpdateUserRequest updateUserRequest, @PathVariable String email) {
+        return new ResponseEntity<>(userCommandService.updateUser(updateUserRequest, email), HttpStatus.OK);
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest user) {
@@ -101,9 +70,9 @@ public class UserController {
         return new ResponseEntity<>(loginResponse, jwtHeader, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody CreateUserRequest createUserRequest){
-
         this.userCommandService.createUser(createUserRequest);
         User userPrincipal = userQueryService.findByEmail(createUserRequest.email());
         HttpHeaders jwtHeader = getJwtHeader(userPrincipal);

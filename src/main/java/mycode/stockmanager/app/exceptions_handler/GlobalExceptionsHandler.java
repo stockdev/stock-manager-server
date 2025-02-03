@@ -6,6 +6,7 @@ import mycode.stockmanager.app.location.exceptions.LocationAlreadyExists;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
 import mycode.stockmanager.app.stock.exceptions.InvalidStockTransaction;
 import mycode.stockmanager.app.stock.exceptions.NoStockFound;
+import mycode.stockmanager.app.users.exceptions.AccessDeniedException;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.exceptions.UserAlreadyExists;
 import mycode.stockmanager.app.utilaje.exceptions.NoUtilajFound;
@@ -41,7 +42,7 @@ public class GlobalExceptionsHandler {
     @ExceptionHandler({UserAlreadyExists.class})
     public ResponseEntity<Object> handleUserAlreadyExistsException(UserAlreadyExists exception) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.CONFLICT)
                 .body(exception.getMessage());
     }
 
@@ -77,6 +78,13 @@ public class GlobalExceptionsHandler {
     public ResponseEntity<Object> handleAlreadyExistsArticleException(AlreadyExistsArticle exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<Object> handleAccesDeniedException(AccessDeniedException exception) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
                 .body(exception.getMessage());
     }
 }

@@ -3,6 +3,7 @@ package mycode.stockmanager.app.articles.service;
 import lombok.AllArgsConstructor;
 import mycode.stockmanager.app.articles.dtos.ArticleResponse;
 import mycode.stockmanager.app.articles.dtos.CreateArticleRequest;
+import mycode.stockmanager.app.articles.dtos.ImportResponse;
 import mycode.stockmanager.app.articles.dtos.UpdateArticleRequest;
 import mycode.stockmanager.app.articles.exceptions.AlreadyExistsArticle;
 import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
@@ -15,11 +16,17 @@ import mycode.stockmanager.app.notification.repository.NotificationRepository;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.model.User;
 import mycode.stockmanager.app.users.repository.UserRepository;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -71,7 +78,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         Article article = articleRepository.findById(id)
                 .orElseThrow(() -> new NoArticleFound("No article with this id found"));
 
-        if(updateArticleRequest.code() != null && !updateArticleRequest.code().equals(article.getCode())) {
+        if (updateArticleRequest.code() != null && !updateArticleRequest.code().equals(article.getCode())) {
             Optional<Article> articleByCode = articleRepository.findByCode(updateArticleRequest.code());
             if (articleByCode.isPresent()) {
                 throw new AlreadyExistsArticle("Article with this code already exists try again with different code");
@@ -104,6 +111,63 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
         return "Article with code  " + articleResponse.code() + " was deleted";
     }
+
+    @Override
+    public ImportResponse importArticlesFromExcel(MultipartFile file) {
+        User user = getAuthenticatedUser();
+        List<String> skippedRows = new ArrayList<>();
+        int importedCount = 0;
+
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            int firstDataRow = 4;
+
+            for (int rowIndex = firstDataRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) {
+                    continue;
+                }
+
+                Cell codeCell = row.getCell(1, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                Cell nameCell = row.getCell(2, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+
+                if (codeCell == null || nameCell == null) {
+                    skippedRows.add("Row " + rowIndex + " skipped: missing code or name.");
+                    continue;
+                }
+
+                String codeValue;
+                if (codeCell.getCellType() == CellType.NUMERIC) {
+                    codeValue = String.valueOf((long) codeCell.getNumericCellValue());
+                } else {
+                    codeValue = codeCell.getStringCellValue().trim();
+                }
+
+                String nameValue = nameCell.getStringCellValue().trim();
+
+                CreateArticleRequest createRequest = new CreateArticleRequest(codeValue, nameValue);
+                try {
+                    createArticle(createRequest);
+                    importedCount++;
+                } catch (Exception e) {
+                    skippedRows.add("Row " + rowIndex + " with code "
+                            + codeValue + " skipped: " + e.getMessage());
+                }
+            }
+
+            String message = "User: " + user.getEmail() + " imported "
+                    + importedCount + " articles from Excel.";
+            createAndSaveNotification(user, message);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read Excel file: " + e.getMessage(), e);
+        }
+
+        return new ImportResponse(importedCount, skippedRows);
+    }
+
+
 
     @Transactional
     public void deleteAllArticlesAndResetSequence() {

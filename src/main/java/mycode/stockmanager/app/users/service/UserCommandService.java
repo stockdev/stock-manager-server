@@ -6,10 +6,10 @@ import mycode.stockmanager.app.users.dtos.UserResponse;
 
 public interface UserCommandService {
 
-    UserResponse createUser(CreateUserRequest createUserRequest);
+    void createUser(CreateUserRequest createUserRequest);
 
-    UserResponse deleteUser(long id);
+    String deleteUser(String email);
 
-    UserResponse updateUser(UpdateUserRequest updateUserRequest, long id);
+    UserResponse updateUser(UpdateUserRequest updateUserRequest, String email);
 
 }

@@ -1,16 +1,16 @@
 package mycode.stockmanager.app.articles.web;
 
 import lombok.AllArgsConstructor;
-import mycode.stockmanager.app.articles.dtos.ArticleResponse;
-import mycode.stockmanager.app.articles.dtos.ArticleResponseList;
-import mycode.stockmanager.app.articles.dtos.CreateArticleRequest;
-import mycode.stockmanager.app.articles.dtos.UpdateArticleRequest;
+import mycode.stockmanager.app.articles.dtos.*;
 import mycode.stockmanager.app.articles.service.ArticleCommandService;
 import mycode.stockmanager.app.articles.service.ArticleQueryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/stock-manager/api/article")
@@ -61,4 +61,19 @@ public class ArticleController {
         articleCommandService.deleteAllArticlesAndResetSequence();
         return ResponseEntity.ok("Deleted all articles");
     }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PostMapping("/importExcel")
+    public ResponseEntity<ImportResponse> importExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            ImportResponse importResponse = articleCommandService.importArticlesFromExcel(file);
+            return ResponseEntity.ok(importResponse);
+        } catch (Exception e) {
+            List<String> errorList = List.of("Error importing: " + e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ImportResponse(0, errorList));
+        }
+    }
+
 }
