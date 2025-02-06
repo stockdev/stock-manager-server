@@ -45,6 +45,7 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
         List<ArticleResponse> responses = new ArrayList<>();
 
+        
         list.forEach(article -> {
 
             responses.add(ArticleMapper.articleToResponseDto(article));
