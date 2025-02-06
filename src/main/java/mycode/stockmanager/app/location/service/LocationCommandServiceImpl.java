@@ -109,6 +109,7 @@ public class LocationCommandServiceImpl implements LocationCommandService {
     }
 
     @Transactional
+    @Override
     public void deleteAllLocationsAndResetSequence() {
         locationRepository.deleteAll();
         locationRepository.resetLocationSequence();

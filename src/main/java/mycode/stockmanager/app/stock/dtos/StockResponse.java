@@ -9,5 +9,5 @@ import mycode.stockmanager.app.stock.enums.SubStockType;
 import java.time.LocalDateTime;
 
 @Builder
-public record StockResponse(Long id, Location location, Article article, StockType stockType, SubStockType subStockType, String orderNumber, int quantity, int necessary, LocalDateTime transactionDate, String comment) {
+public record StockResponse(Long id, Location location, Article article, StockType stockType, SubStockType subStockType, String orderNumber, int quantity, int necessary, LocalDateTime transactionDate) {
 }

@@ -6,6 +6,7 @@ import mycode.stockmanager.app.stock.dtos.StockResponse;
 import mycode.stockmanager.app.stock.model.Stock;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class StockMapper {
 
@@ -16,10 +17,15 @@ public class StockMapper {
                 .subStockType(stock.getSubStockType())
                 .article(stock.getArticle())
                 .location(stock.getLocation())
-                .comment(stock.getComment())
                 .necessary(stock.getNecessary())
                 .orderNumber(stock.getOrderNumber())
                 .quantity(stock.getQuantity())
                 .transactionDate(LocalDateTime.now()).build();
+    }
+
+    public static List<StockResponse> stocksToResponseDto(List<Stock> list) {
+        return list.stream()
+                .map(StockMapper::stockToResponseDto)
+                .toList();
     }
 }

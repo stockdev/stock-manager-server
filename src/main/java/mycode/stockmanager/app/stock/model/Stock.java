@@ -52,11 +52,7 @@ public class Stock {
     )
     private LocalDateTime transactionDate;
 
-    @Column(
-            name = "comment",
-            nullable = false
-    )
-    private String comment;
+
 
     @Column(
             name = "stock_type",

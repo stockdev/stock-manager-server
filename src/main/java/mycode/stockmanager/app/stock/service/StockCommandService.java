@@ -11,4 +11,6 @@ public interface StockCommandService {
     StockResponse deleteStockTransaction(Long id);
 
     StockResponse updateStockTransaction(Long id, UpdateStockRequest updateStockRequest);
+
+    void deleteAllStocksAndResetSequence();
 }
