@@ -45,6 +45,9 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
         List<ArticleResponse> responses = new ArrayList<>();
 
+        if(list.isEmpty()){
+            throw new NoArticleFound("No articles found");
+        }
         
         list.forEach(article -> {
 

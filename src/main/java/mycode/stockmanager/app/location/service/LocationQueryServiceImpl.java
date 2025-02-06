@@ -38,6 +38,10 @@ public class LocationQueryServiceImpl implements LocationQueryService{
     public LocationResponseList getAllLocations() {
         List<Location> list = locationRepository.findAll();
 
+        if(list.isEmpty()){
+            throw new NoLocationFound("No location found");
+        }
+
         List<LocationResponse> responses = new ArrayList<>();
 
         list.forEach(location -> {
