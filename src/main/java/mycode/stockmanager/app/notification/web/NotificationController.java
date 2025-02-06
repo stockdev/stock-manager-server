@@ -17,16 +17,23 @@ public class NotificationController {
     private final NotificationCommandService notificationCommandService;
     private final NotificationQueryService notificationQueryService;
 
-    @GetMapping("/getAllNotifications")
-    public ResponseEntity<NotificationResponseList> getAllNotifications() {
-        NotificationResponseList response = notificationQueryService.getAllNotifications();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/deleteAllNotifications")
     public ResponseEntity<String> deleteAllNotifications() {
         String result = notificationCommandService.deleteAllNotifications();
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    @GetMapping("/getAllNotifications")
+    public ResponseEntity<NotificationResponseList> getAllNotifications(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false) String selectedType
+    ) {
+        NotificationResponseList response = notificationQueryService.getAllNotifications(page, size, searchTerm, selectedType);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
 }
