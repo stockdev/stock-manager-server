@@ -1,6 +1,7 @@
 package mycode.stockmanager.app.notification.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.notification.enums.NotificationType;
@@ -47,6 +48,7 @@ public class Notification {
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
 

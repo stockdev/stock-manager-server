@@ -2,6 +2,7 @@ package mycode.stockmanager.app.notification.mapper;
 
 import mycode.stockmanager.app.notification.dtos.NotificationResponse;
 import mycode.stockmanager.app.notification.model.Notification;
+import mycode.stockmanager.app.users.mapper.UserMapper;
 
 public class NotificationMapper {
 
@@ -10,7 +11,7 @@ public class NotificationMapper {
         return NotificationResponse.builder()
                 .message(notification.getMessage())
                 .notificationType(notification.getNotificationType())
-                .user(notification.getUser()).build();
+                .user(UserMapper.userToResponseDto(notification.getUser())).build();
 
     }
 }

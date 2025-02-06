@@ -1,6 +1,7 @@
 package mycode.stockmanager.app.users.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.notification.model.Notification;
@@ -78,6 +79,7 @@ public class User implements UserDetails {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Notification> notifications;
 
     public User(Long id, String fullName, String phoneNumber, String email, String password, UserRole userRole, LocalDateTime registeredAt, LocalDateTime createdAt, boolean active) {
