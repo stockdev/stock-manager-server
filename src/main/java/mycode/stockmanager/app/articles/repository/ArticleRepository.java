@@ -23,6 +23,8 @@ public interface ArticleRepository extends JpaRepository<Article, Integer> {
 
     Page<Article> findByCodeContainingIgnoreCase(String code, Pageable pageable);
 
+    Page<Article> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
 
 
 

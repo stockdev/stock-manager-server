@@ -38,6 +38,10 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
             articlePage = articleRepository.findAll(pageable);
         } else {
             articlePage = articleRepository.findByCodeContainingIgnoreCase(searchTerm, pageable);
+
+            if (articlePage.isEmpty()) {
+                articlePage = articleRepository.findByNameContainingIgnoreCase(searchTerm, pageable);
+            }
         }
 
         if (articlePage.isEmpty()){
