@@ -129,8 +129,8 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
                     continue;
                 }
 
-                Cell codeCell = row.getCell(1, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell nameCell = row.getCell(2, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                Cell codeCell = row.getCell(0, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+                Cell nameCell = row.getCell(1, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 
                 if (codeCell == null || nameCell == null) {
                     skippedRows.add("Row " + rowIndex + " skipped: missing code or name.");
