@@ -1,12 +1,17 @@
 package mycode.stockmanager.app.location.service;
 
 import lombok.AllArgsConstructor;
+import mycode.stockmanager.app.articles.model.Article;
 import mycode.stockmanager.app.location.dtos.LocationResponse;
 import mycode.stockmanager.app.location.dtos.LocationResponseList;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
 import mycode.stockmanager.app.location.mapper.LocationMapper;
 import mycode.stockmanager.app.location.model.Location;
 import mycode.stockmanager.app.location.repository.LocationRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,20 +40,25 @@ public class LocationQueryServiceImpl implements LocationQueryService{
     }
 
     @Override
-    public LocationResponseList getAllLocations() {
-        List<Location> list = locationRepository.findAll();
+    public LocationResponseList getAllLocations(int page, int size, String searchTerm) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+        Page<Location> locationPage;
 
-        if(list.isEmpty()){
-            throw new NoLocationFound("No location found");
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            locationPage = locationRepository.findAll(pageable);
+        } else {
+            locationPage= locationRepository.findByCodeContainingIgnoreCase(searchTerm, pageable);
         }
 
-        List<LocationResponse> responses = new ArrayList<>();
+        if (locationPage.isEmpty()) {
+            throw new NoLocationFound("No locations found");
+        }
 
-        list.forEach(location -> {
+        List<LocationResponse> responses = locationPage.getContent()
+                .stream()
+                .map(LocationMapper::locationToResponseDto)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
-            responses.add(LocationMapper.locationToResponseDto(location));
-        });
-
-        return new LocationResponseList(responses);
+        return new LocationResponseList(responses, locationPage.getNumber(), locationPage.getTotalPages(), locationPage.getTotalElements());
     }
 }

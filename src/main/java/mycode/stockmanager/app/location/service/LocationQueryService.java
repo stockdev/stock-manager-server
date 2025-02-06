@@ -8,5 +8,5 @@ public interface LocationQueryService {
 
     LocationResponse getLocationByCode(String code);
 
-    LocationResponseList getAllLocations();
+    LocationResponseList getAllLocations(int page, int size, String searchTerm);
 }

@@ -12,6 +12,7 @@ import mycode.stockmanager.app.notification.repository.NotificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +22,14 @@ import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
-public class NotificationQueryServiceImpl implements NotificationQueryService{
+public class NotificationQueryServiceImpl implements NotificationQueryService {
 
     private NotificationRepository notificationRepository;
 
 
-
     public NotificationResponseList getAllNotifications(int page, int size, String searchTerm, String selectedType) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+
 
         Specification<Notification> spec = Specification.where(null);
 
@@ -47,7 +48,7 @@ public class NotificationQueryServiceImpl implements NotificationQueryService{
 
         Page<Notification> notificationPage = notificationRepository.findAll(spec, pageable);
 
-        if(notificationPage.isEmpty()){
+        if (notificationPage.isEmpty()) {
             throw new NotFoundNotification("No notifications found");
         }
 

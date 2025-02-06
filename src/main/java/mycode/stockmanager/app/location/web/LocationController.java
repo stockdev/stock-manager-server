@@ -31,8 +31,13 @@ public class LocationController {
 
 
     @GetMapping("/getAllLocations")
-    public ResponseEntity<LocationResponseList> getAllLocations() {
-        return new ResponseEntity<>(locationQueryService.getAllLocations(), HttpStatus.OK);
+    public ResponseEntity<LocationResponseList> getAllLocations(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) String searchTerm
+    ) {
+        LocationResponseList response = locationQueryService.getAllLocations(page, size, searchTerm);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -76,38 +81,5 @@ public class LocationController {
     }
 
 
-    @GetMapping("/exportLocations/")
-    public ResponseEntity<?> exportLocations(HttpServletResponse response) {
-        try {
 
-            LocationResponseList locations = locationQueryService.getAllLocations();
-
-            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            response.setHeader("Content-Disposition", "attachment; filename=locations.xlsx");
-
-
-            XSSFWorkbook workbook = new XSSFWorkbook();
-            XSSFSheet sheet = workbook.createSheet("Locations");
-
-            Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("Code");
-
-            int rowCount = 0;
-            for (LocationResponse location : locations.list()) {
-                Row row = sheet.createRow(rowCount++);
-                row.createCell(0).setCellValue(location.code());
-            }
-
-            workbook.write(response.getOutputStream());
-            workbook.close();
-
-            locationCommandService.deleteAllLocationsAndResetSequence();
-
-            return ResponseEntity.ok("Exported " + locations.list().size() + " locations to Excel successfully.");
-        } catch (Exception e) {
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while exporting locations: " + e.getMessage());
-        }
-    }
 }
