@@ -16,25 +16,26 @@ import mycode.stockmanager.app.notification.repository.NotificationRepository;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.model.User;
 import mycode.stockmanager.app.users.repository.UserRepository;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Optional;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
 @Service
 public class LocationCommandServiceImpl implements LocationCommandService {
 
-    private final LocationRepository locationRepository;
-    private final UserRepository userRepository;
-    private final NotificationRepository notificationRepository;
+    private LocationRepository locationRepository;
+    private UserRepository userRepository;
+    private NotificationRepository notificationRepository;
 
     private void createAndSaveNotification(User user, String message) {
         Notification notification = Notification.builder()
@@ -57,16 +58,18 @@ public class LocationCommandServiceImpl implements LocationCommandService {
 
     @Override
     public LocationResponse createLocation(CreateLocationRequest createLocationRequest) {
-        User user = getAuthenticatedUser();
-
-        Optional<Location> locationByCode = locationRepository.findByCode(createLocationRequest.code());
-
-        if(locationByCode.isPresent()){
-            throw new LocationAlreadyExists("Location with this code already exists try again with a different code");
-        }
-
         Location location = LocationMapper.createLocationRequestToLocation(createLocationRequest);
+        List<Location> list = locationRepository.findAll();
+
+        list.forEach(location1 -> {
+            if (location.getCode().equals(location1.getCode())) {
+                throw new LocationAlreadyExists("Location with this code already exists");
+            }
+        });
+
         locationRepository.saveAndFlush(location);
+
+        User user = getAuthenticatedUser();
 
         String message = "User: " + user.getEmail() + " created location with code: " + location.getCode();
         createAndSaveNotification(user, message);
@@ -75,17 +78,14 @@ public class LocationCommandServiceImpl implements LocationCommandService {
     }
 
     @Override
-    public LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, long id) {
-        User user = getAuthenticatedUser();
+    public LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, String code) {
+        Location location = locationRepository.findByCode(code)
+                .orElseThrow(() -> new NoLocationFound("No location with this code found"));
 
-
-        if(updateLocationRequest.code() != null && !updateLocationRequest.code().equals(location.getCode())) {
-            Optional<Location> locationByCode = locationRepository.findByCode(updateLocationRequest.code());
-            if (locationByCode.isPresent()) {
-                throw new LocationAlreadyExists("Article with this code already exists try again with different code");
-            }
+        Optional<Location> locationByCode = locationRepository.findByCode(updateLocationRequest.code());
+        if (locationByCode.isPresent()) {
+            throw new LocationAlreadyExists("Location with this code already exists");
         }
-
 
         location.setCode(updateLocationRequest.code());
         locationRepository.save(location);
@@ -97,33 +97,77 @@ public class LocationCommandServiceImpl implements LocationCommandService {
     }
 
     @Override
-    public String deleteLocationByCode(String code) {
-        User user = getAuthenticatedUser();
-
+    public LocationResponse deleteLocationByCode(String code) {
         Location location = locationRepository.findByCode(code)
                 .orElseThrow(() -> new NoLocationFound("No location with this code found"));
 
         LocationResponse locationResponse = LocationMapper.locationToResponseDto(location);
-        String message = "User: " + user.getEmail() + " deleted location with code: " + locationResponse.code();
-        createAndSaveNotification(user, message);
-
 
         locationRepository.delete(location);
 
-        return "Article with code  " + locationResponse.code() + " was deleted";
+        return locationResponse;
     }
 
     @Transactional
     public void deleteAllLocationsAndResetSequence() {
-        User user = getAuthenticatedUser();
-
         locationRepository.deleteAll();
         locationRepository.resetLocationSequence();
+
+        User user = getAuthenticatedUser();
 
         String message = "User: " + user.getEmail() + " deleted all locations";
         createAndSaveNotification(user, message);
     }
 
+    @Override
+    public ImportResponse importLocationsFromExcel(MultipartFile file) {
+        User user = getAuthenticatedUser();
+        List<String> skippedRows = new ArrayList<>();
+        int importedCount = 0;
 
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            int firstDataRow = 4;
+
+            for (int rowIndex = firstDataRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) {
+                    continue;
+                }
+
+                Cell codeCell = row.getCell(0, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+
+                if (codeCell == null) {
+                    skippedRows.add("Row " + rowIndex + " skipped: missing code.");
+                    continue;
+                }
+
+                String codeValue;
+                if (codeCell.getCellType() == CellType.NUMERIC) {
+                    codeValue = String.valueOf((long) codeCell.getNumericCellValue());
+                } else {
+                    codeValue = codeCell.getStringCellValue().trim();
+                }
+
+
+                CreateLocationRequest createRequest = new CreateLocationRequest(codeValue);
+
+                try {
+                    createLocation(createRequest);
+                    importedCount++;
+                } catch (Exception e) {
+                    skippedRows.add("Row " + rowIndex + " with code " + codeValue + " skipped: " + e.getMessage());
+                }
+            }
+
+            String message = "User: " + user.getEmail() + " imported " + importedCount + " locations from Excel.";
+            createAndSaveNotification(user, message);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read Excel file: " + e.getMessage(), e);
+        }
+
+        return new ImportResponse(importedCount, skippedRows);
+    }
 
 }

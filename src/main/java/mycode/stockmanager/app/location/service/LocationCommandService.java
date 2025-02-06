@@ -10,9 +10,11 @@ public interface LocationCommandService  {
 
     LocationResponse createLocation(CreateLocationRequest createLocationRequest);
 
-    LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, long id);
+    LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest,String code);
 
-    String deleteLocationByCode(String code);
+    LocationResponse deleteLocationByCode(String code);
 
     void deleteAllLocationsAndResetSequence();
+
+    ImportResponse importLocationsFromExcel(MultipartFile file);
 }

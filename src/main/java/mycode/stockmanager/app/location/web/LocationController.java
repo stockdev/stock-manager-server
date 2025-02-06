@@ -7,6 +7,7 @@ import mycode.stockmanager.app.location.dtos.LocationResponse;
 import mycode.stockmanager.app.location.dtos.CreateLocationRequest;
 import mycode.stockmanager.app.location.dtos.LocationResponseList;
 import mycode.stockmanager.app.location.dtos.UpdateLocationRequest;
+import mycode.stockmanager.app.location.model.Location;
 import mycode.stockmanager.app.location.service.LocationCommandService;
 import mycode.stockmanager.app.location.service.LocationQueryService;
 import org.apache.poi.ss.usermodel.Row;
@@ -41,19 +42,20 @@ public class LocationController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PutMapping("/updateLocation/{locationId}")
-    public ResponseEntity<LocationResponse> updateLocation(@PathVariable long locationId, @RequestBody UpdateLocationRequest updateLocationRequest) {
-        return new ResponseEntity<>(locationCommandService.updateLocation(updateLocationRequest, locationId), HttpStatus.OK);
+    @PutMapping("/updateLocation/{code}")
+    public ResponseEntity<LocationResponse> updateLocation(@PathVariable String code, @RequestBody UpdateLocationRequest updateLocationRequest
+    ) {
         return new ResponseEntity<>(locationCommandService.updateLocation(updateLocationRequest, code), HttpStatus.OK);
+    }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+
     @DeleteMapping("/deleteLocationByCode/{locationCode}")
-    public ResponseEntity<String> deleteLocationByCode(@PathVariable String locationCode) {
+    public ResponseEntity<LocationResponse> deleteLocationByCode(@PathVariable String locationCode) {
         return new ResponseEntity<>(locationCommandService.deleteLocationByCode(locationCode), HttpStatus.OK);
     }
 
-    @GetMapping("/exportLocations")
-    public ResponseEntity<?> exportLocations(HttpServletResponse response) {
+
+    @DeleteMapping("/deleteAllLocations")
     public ResponseEntity<?> deleteAllArticles() {
         locationCommandService.deleteAllLocationsAndResetSequence();
         return ResponseEntity.ok("Deleted all locations");
@@ -108,8 +110,4 @@ public class LocationController {
                     .body("An error occurred while exporting locations: " + e.getMessage());
         }
     }
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @DeleteMapping("/deleteAllLocations")
-    public ResponseEntity<String> deleteAllLocations(){
-        locationCommandService.deleteAllLocationsAndResetSequence();
 }
