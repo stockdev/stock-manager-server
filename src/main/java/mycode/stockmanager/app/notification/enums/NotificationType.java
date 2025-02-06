@@ -1,4 +1,4 @@
-package mycode.stockmanager.app.notification.notification_type;
+package mycode.stockmanager.app.notification.enums;
 
 
 

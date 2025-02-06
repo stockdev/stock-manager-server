@@ -2,7 +2,7 @@ package mycode.stockmanager.app.users.service;
 
 import lombok.AllArgsConstructor;
 import mycode.stockmanager.app.notification.model.Notification;
-import mycode.stockmanager.app.notification.notification_type.NotificationType;
+import mycode.stockmanager.app.notification.enums.NotificationType;
 import mycode.stockmanager.app.notification.repository.NotificationRepository;
 import mycode.stockmanager.app.system.security.UserRole;
 import mycode.stockmanager.app.users.dtos.CreateUserRequest;

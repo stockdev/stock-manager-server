@@ -11,7 +11,7 @@ import mycode.stockmanager.app.location.mapper.LocationMapper;
 import mycode.stockmanager.app.location.model.Location;
 import mycode.stockmanager.app.location.repository.LocationRepository;
 import mycode.stockmanager.app.notification.model.Notification;
-import mycode.stockmanager.app.notification.notification_type.NotificationType;
+import mycode.stockmanager.app.notification.enums.NotificationType;
 import mycode.stockmanager.app.notification.repository.NotificationRepository;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.model.User;

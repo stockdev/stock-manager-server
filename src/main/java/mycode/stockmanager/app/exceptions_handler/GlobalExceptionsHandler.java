@@ -4,6 +4,7 @@ import mycode.stockmanager.app.articles.exceptions.AlreadyExistsArticle;
 import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
 import mycode.stockmanager.app.location.exceptions.LocationAlreadyExists;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
+import mycode.stockmanager.app.notification.exceptions.NotFoundNotification;
 import mycode.stockmanager.app.stock.exceptions.InvalidStockTransaction;
 import mycode.stockmanager.app.stock.exceptions.NoStockFound;
 import mycode.stockmanager.app.users.exceptions.AccessDeniedException;
@@ -85,6 +86,13 @@ public class GlobalExceptionsHandler {
     public ResponseEntity<Object> handleAccesDeniedException(AccessDeniedException exception) {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({NotFoundNotification.class})
+    public ResponseEntity<Object> handleNotFoundNotificationException(NotFoundNotification exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
     }
 }
