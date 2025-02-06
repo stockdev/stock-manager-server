@@ -140,8 +140,8 @@ public class StockCommandServiceImpl implements StockCommandService{
     @Transactional
     @Override
     public void deleteAllStocksAndResetSequence() {
-        locationRepository.deleteAll();
-        locationRepository.resetLocationSequence();
+        stockRepository.deleteAll();
+        stockRepository.resetStockSequence();
 
         User user = getAuthenticatedUser();
 
