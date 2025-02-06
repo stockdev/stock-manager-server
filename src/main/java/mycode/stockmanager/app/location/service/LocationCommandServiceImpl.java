@@ -1,6 +1,7 @@
 package mycode.stockmanager.app.location.service;
 
 import lombok.AllArgsConstructor;
+import mycode.stockmanager.app.articles.dtos.ImportResponse;
 import mycode.stockmanager.app.location.dtos.CreateLocationRequest;
 import mycode.stockmanager.app.location.dtos.LocationResponse;
 import mycode.stockmanager.app.location.dtos.UpdateLocationRequest;
@@ -15,14 +16,22 @@ import mycode.stockmanager.app.notification.repository.NotificationRepository;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.model.User;
 import mycode.stockmanager.app.users.repository.UserRepository;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
-public class LocationCommandServiceImpl implements LocationCommandService{
+public class LocationCommandServiceImpl implements LocationCommandService {
 
     private LocationRepository locationRepository;
     private UserRepository userRepository;
@@ -38,21 +47,29 @@ public class LocationCommandServiceImpl implements LocationCommandService{
         notificationRepository.saveAndFlush(notification);
     }
 
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NoUserFound("User not found"));
+    }
+
+
     @Override
-    public LocationResponse createLocation(CreateLocationRequest createLocationRequest, long userId) {
+    public LocationResponse createLocation(CreateLocationRequest createLocationRequest) {
         Location location = LocationMapper.createLocationRequestToLocation(createLocationRequest);
         List<Location> list = locationRepository.findAll();
 
         list.forEach(location1 -> {
-            if(location.getCode().equals(location1.getCode())){
+            if (location.getCode().equals(location1.getCode())) {
                 throw new LocationAlreadyExists("Location with this code already exists");
             }
         });
 
         locationRepository.saveAndFlush(location);
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
+        User user = getAuthenticatedUser();
 
         String message = "User: " + user.getEmail() + " created location with code: " + location.getCode();
         createAndSaveNotification(user, message);
@@ -61,17 +78,18 @@ public class LocationCommandServiceImpl implements LocationCommandService{
     }
 
     @Override
-    public LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, long id, long userId) {
-        Location location = locationRepository.findById(id)
-                .orElseThrow(() -> new NoLocationFound("No location with this id found"));
+    public LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, String code) {
+        Location location = locationRepository.findByCode(code)
+                .orElseThrow(() -> new NoLocationFound("No location with this code found"));
+
+        Optional<Location> locationByCode = locationRepository.findByCode(updateLocationRequest.code());
+        if (locationByCode.isPresent()) {
+            throw new LocationAlreadyExists("Location with this code already exists");
+        }
 
         location.setCode(updateLocationRequest.code());
-
         locationRepository.save(location);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
-
+        User user = getAuthenticatedUser();
         String message = "User: " + user.getEmail() + " updated article with code: " + location.getCode();
         createAndSaveNotification(user, message);
 
@@ -91,35 +109,65 @@ public class LocationCommandServiceImpl implements LocationCommandService{
     }
 
     @Transactional
-    public void deleteAllLocationsAndResetSequence(long userId) {
+    public void deleteAllLocationsAndResetSequence() {
         locationRepository.deleteAll();
         locationRepository.resetLocationSequence();
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
+        User user = getAuthenticatedUser();
 
         String message = "User: " + user.getEmail() + " deleted all locations";
         createAndSaveNotification(user, message);
     }
 
     @Override
-    public LocationResponse deleteLocationById(long id, long userId) {
-        Location location = locationRepository.findById(id)
-                .orElseThrow(() -> new NoLocationFound("No location with this id found"));
+    public ImportResponse importLocationsFromExcel(MultipartFile file) {
+        User user = getAuthenticatedUser();
+        List<String> skippedRows = new ArrayList<>();
+        int importedCount = 0;
 
-        LocationResponse locationResponse = LocationMapper.locationToResponseDto(location);
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            int firstDataRow = 4;
 
-        String locationCode = location.getCode();
+            for (int rowIndex = firstDataRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) {
+                    continue;
+                }
 
-        locationRepository.delete(location);
+                Cell codeCell = row.getCell(0, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+
+                if (codeCell == null) {
+                    skippedRows.add("Row " + rowIndex + " skipped: missing code.");
+                    continue;
+                }
+
+                String codeValue;
+                if (codeCell.getCellType() == CellType.NUMERIC) {
+                    codeValue = String.valueOf((long) codeCell.getNumericCellValue());
+                } else {
+                    codeValue = codeCell.getStringCellValue().trim();
+                }
 
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
+                CreateLocationRequest createRequest = new CreateLocationRequest(codeValue);
 
-        String message = "User: " + user.getEmail() + " deleted location with code: " + locationCode;
-        createAndSaveNotification(user, message);
+                try {
+                    createLocation(createRequest);
+                    importedCount++;
+                } catch (Exception e) {
+                    skippedRows.add("Row " + rowIndex + " with code " + codeValue + " skipped: " + e.getMessage());
+                }
+            }
 
-        return locationResponse;
+            String message = "User: " + user.getEmail() + " imported " + importedCount + " locations from Excel.";
+            createAndSaveNotification(user, message);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read Excel file: " + e.getMessage(), e);
+        }
+
+        return new ImportResponse(importedCount, skippedRows);
     }
+
 }

@@ -87,10 +87,11 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         validateDeleteUserPermissions(currentUser, userToDelete);
 
-        userRepository.delete(userToDelete);
         createAndSaveNotification(currentUser,
                 "Deleted user: " + email
         );
+
+        userRepository.delete(userToDelete);
 
         return "User with email: " + email + " has been deleted!";
     }
@@ -195,7 +196,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         user.setPhone(request.phone());
 
         if (request.password() != null && !request.password().trim().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(request.password()));
+            user.setPassword(request.password());
         }
 
         boolean isSameUser = currentUser.getEmail().equals(user.getEmail());

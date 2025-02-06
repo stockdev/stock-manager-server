@@ -63,7 +63,7 @@ public class GlobalExceptionsHandler {
     @ExceptionHandler({LocationAlreadyExists.class})
     public ResponseEntity<Object> handleLocationAlreadyExistsException(LocationAlreadyExists exception) {
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.CONFLICT)
                 .body(exception.getMessage());
     }
 
