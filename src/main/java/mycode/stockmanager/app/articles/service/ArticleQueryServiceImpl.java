@@ -8,14 +8,13 @@ import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
 import mycode.stockmanager.app.articles.mapper.ArticleMapper;
 import mycode.stockmanager.app.articles.model.Article;
 import mycode.stockmanager.app.articles.repository.ArticleRepository;
-import mycode.stockmanager.app.location.dtos.LocationResponse;
-import mycode.stockmanager.app.location.dtos.LocationResponseList;
-import mycode.stockmanager.app.location.mapper.LocationMapper;
-import mycode.stockmanager.app.location.model.Location;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -23,15 +22,6 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
 
     private ArticleRepository articleRepository;
 
-    @Override
-    public ArticleResponse getArticleById(long id) {
-        Article article = articleRepository.findById(id)
-                .orElseThrow(() -> new NoArticleFound("No article with this id found"));
-
-        return ArticleMapper.articleToResponseDto(article);
-    }
-
-    @Override
     public ArticleResponse getArticleByCode(String code) {
         Article article = articleRepository.findByCode(code)
                 .orElseThrow(() -> new NoArticleFound("No article with this code found"));
@@ -40,20 +30,26 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     }
 
     @Override
-    public ArticleResponseList getAllArticles() {
-        List<Article> list = articleRepository.findAll();
+    public ArticleResponseList getArticles(int page, int size, String searchTerm) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Article> articlePage;
 
-        List<ArticleResponse> responses = new ArrayList<>();
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            articlePage = articleRepository.findAll(pageable);
+        } else {
+            articlePage = articleRepository.findByCodeContainingIgnoreCase(searchTerm, pageable);
+        }
 
-        if(list.isEmpty()){
+        if (articlePage.isEmpty()){
             throw new NoArticleFound("No articles found");
         }
-        
-        list.forEach(article -> {
 
-            responses.add(ArticleMapper.articleToResponseDto(article));
-        });
+        List<ArticleResponse> responses = articlePage.getContent()
+                .stream()
+                .map(ArticleMapper::articleToResponseDto)
+                .collect(Collectors.toList());
 
-        return new ArticleResponseList(responses);
+        return new ArticleResponseList(responses, articlePage.getNumber(), articlePage.getTotalPages(), articlePage.getTotalElements());
     }
+
 }

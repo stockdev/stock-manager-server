@@ -20,20 +20,21 @@ public class ArticleController {
     private final ArticleCommandService articleCommandService;
     private final ArticleQueryService articleQueryService;
 
-    @GetMapping("/getArticleById/{articleId}")
-    public ResponseEntity<ArticleResponse> getArticleById(@PathVariable long articleId) {
-        return new ResponseEntity<>(articleQueryService.getArticleById(articleId), HttpStatus.OK);
-    }
-
     @GetMapping("/getArticleByCode/{code}")
     public ResponseEntity<ArticleResponse> getArticleByCode(@PathVariable String code) {
         return new ResponseEntity<>(articleQueryService.getArticleByCode(code), HttpStatus.OK);
     }
 
     @GetMapping("/getAllArticles")
-    public ResponseEntity<ArticleResponseList> getAllArticles() {
-        return new ResponseEntity<>(articleQueryService.getAllArticles(), HttpStatus.OK);
+    public ResponseEntity<ArticleResponseList> getAllArticles(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) String searchTerm
+    ) {
+        ArticleResponseList response = articleQueryService.getArticles(page, size, searchTerm);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/createArticle")

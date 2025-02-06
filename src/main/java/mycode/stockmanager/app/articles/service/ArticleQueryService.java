@@ -5,9 +5,10 @@ import mycode.stockmanager.app.articles.dtos.ArticleResponseList;
 
 public interface ArticleQueryService {
 
-    ArticleResponse getArticleById(long id);
 
     ArticleResponse getArticleByCode(String code);
 
-    ArticleResponseList getAllArticles();
+
+    ArticleResponseList getArticles(int page, int size, String searchTerm);
+
 }
