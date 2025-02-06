@@ -1,85 +1,215 @@
 package mycode.stockmanager.app.users.service;
 
-
 import lombok.AllArgsConstructor;
+import mycode.stockmanager.app.notification.model.Notification;
+import mycode.stockmanager.app.notification.notification_type.NotificationType;
+import mycode.stockmanager.app.notification.repository.NotificationRepository;
 import mycode.stockmanager.app.system.security.UserRole;
 import mycode.stockmanager.app.users.dtos.CreateUserRequest;
 import mycode.stockmanager.app.users.dtos.UpdateUserRequest;
 import mycode.stockmanager.app.users.dtos.UserResponse;
+import mycode.stockmanager.app.users.exceptions.AccessDeniedException;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.exceptions.UserAlreadyExists;
 import mycode.stockmanager.app.users.mapper.UserMapper;
 import mycode.stockmanager.app.users.model.User;
 import mycode.stockmanager.app.users.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @AllArgsConstructor
 @Service
-public class UserCommandServiceImpl implements UserCommandService{
+public class UserCommandServiceImpl implements UserCommandService {
 
-    private UserRepository userRepository;
-    private BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
+    private void createAndSaveNotification(User user, String message) {
+        Notification notification = Notification.builder()
+                .notificationType(NotificationType.INFORMATION)
+                .user(user)
+                .message(message)
+                .build();
+        notificationRepository.saveAndFlush(notification);
+    }
 
     @Override
-    public UserResponse createUser(CreateUserRequest createUserRequest) {
-        User user  = User.builder()
-                .phone(createUserRequest.phone())
-                .password(passwordEncoder.encode(createUserRequest.password()))
+    public void createUser(CreateUserRequest createUserRequest) {
+        User currentUser = getAuthenticatedUser();
+        UserRole currentUserRole = currentUser.getUserRole();
+        UserRole requestedRole = createUserRequest.userRole();
+
+        validateCreateUserPermissions(currentUserRole, requestedRole);
+
+        if (userRepository.existsByEmail(createUserRequest.email())) {
+            throw new UserAlreadyExists("User with this email already exists!");
+        }
+
+        User newUser = User.builder()
                 .fullName(createUserRequest.fullName())
                 .email(createUserRequest.email())
-                .userRole(createUserRequest.userRole())
+                .phone(createUserRequest.phone())
+                .password(passwordEncoder.encode(createUserRequest.password()))
+                .userRole(requestedRole)
                 .build();
 
-        List<User> list = userRepository.findAll();
+        userRepository.saveAndFlush(newUser);
+        createAndSaveNotification(currentUser,
+                "Created new user: " + createUserRequest.email()
+        );
+    }
 
-        list.forEach( user1 -> {
-            if(user.getEmail().equals(user1.getEmail())){
-                throw new UserAlreadyExists("User with this email already exists");
+    private void validateCreateUserPermissions(UserRole currentRole, UserRole targetRole) {
+        switch (currentRole) {
+            case ADMIN -> {
+                if (targetRole == UserRole.ADMIN) {
+                    throw new AccessDeniedException("Admin cannot create another Admin!");
+                }
             }
-        });
-
-        userRepository.saveAndFlush(user);
-
-        return UserMapper.userToResponseDto(user);
+            case MANAGER -> {
+                if (targetRole != UserRole.UTILIZATOR) {
+                    throw new AccessDeniedException("Manager can only create UTILIZATOR users!");
+                }
+            }
+            case UTILIZATOR -> throw new AccessDeniedException("UTILIZATOR cannot create any users!");
+            default -> throw new AccessDeniedException("Invalid role for user creation!");
+        }
     }
 
     @Override
-    public UserResponse deleteUser(long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
+    public String deleteUser(String email) {
+        User currentUser = getAuthenticatedUser();
+        User userToDelete = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoUserFound("No user with this email found"));
 
+        validateDeleteUserPermissions(currentUser, userToDelete);
 
-        UserResponse response = UserMapper.userToResponseDto(user);
+        createAndSaveNotification(currentUser,
+                "Deleted user: " + email
+        );
 
-        userRepository.delete(user);
+        userRepository.delete(userToDelete);
 
-        return response;
+        return "User with email: " + email + " has been deleted!";
+    }
+
+    private void validateDeleteUserPermissions(User currentUser, User targetUser) {
+        UserRole currentRole = currentUser.getUserRole();
+        UserRole targetRole = targetUser.getUserRole();
+        boolean isSameUser = currentUser.getEmail().equals(targetUser.getEmail());
+
+        switch (currentRole) {
+            case ADMIN -> {
+                if (targetRole == UserRole.ADMIN) {
+                    throw new AccessDeniedException("Admin cannot delete another Admin!");
+                }
+            }
+            case MANAGER -> {
+                if (!isSameUser && targetRole != UserRole.UTILIZATOR) {
+                    throw new AccessDeniedException("Manager can only delete their own account or UTILIZATOR accounts!");
+                }
+            }
+            case UTILIZATOR -> {
+                if (!isSameUser) {
+                    throw new AccessDeniedException("UTILIZATOR can only delete their own account!");
+                }
+            }
+            default -> throw new AccessDeniedException("Invalid role for user deletion!");
+        }
     }
 
     @Override
-    public UserResponse updateUser(UpdateUserRequest up, long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NoUserFound("No user with this id found"));
+    public UserResponse updateUser(UpdateUserRequest updateUserRequest, String email) {
+        User currentUser = getAuthenticatedUser();
+        User userToUpdate = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoUserFound("No user with this email found"));
 
-        List<User> list = userRepository.findAll();
-        list.remove(user);
+        validateUpdateUserPermissions(currentUser, userToUpdate, updateUserRequest);
 
-        list.forEach( user1 -> {
-            if(up.email().equals(user1.getEmail())){
-                throw new UserAlreadyExists("User with this email already exists, please enter a different email address");
+        if (!currentUser.getEmail().equals(email) &&
+                userRepository.existsByEmail(updateUserRequest.email())) {
+            throw new UserAlreadyExists("User with this email already exists!");
+        }
+
+        updateUserFields(userToUpdate, updateUserRequest, currentUser);
+        User savedUser = userRepository.save(userToUpdate);
+
+        createAndSaveNotification(currentUser,
+                "Updated user: " + email
+        );
+
+        return UserMapper.userToResponseDto(savedUser);
+    }
+
+    private void validateUpdateUserPermissions(User currentUser, User targetUser, UpdateUserRequest updateRequest) {
+        UserRole currentRole = currentUser.getUserRole();
+        UserRole targetRole = targetUser.getUserRole();
+        boolean isSameUser = currentUser.getEmail().equals(targetUser.getEmail());
+
+        switch (currentRole) {
+            case ADMIN -> {
+                if (isSameUser) {
+                    if (!updateRequest.userRole().equals(targetRole)) {
+                        throw new AccessDeniedException("Admin cannot change their own role!");
+                    }
+                } else {
+                    if (targetRole == UserRole.ADMIN) {
+                        throw new AccessDeniedException("Admin cannot modify another Admin!");
+                    }
+                    if (updateRequest.userRole() == UserRole.ADMIN) {
+                        throw new AccessDeniedException("Admin cannot promote users to Admin role!");
+                    }
+                }
             }
-        });
-        user.setEmail(up.email());
-        user.setFullName(up.fullName());
-        user.setPassword(up.password());
-        user.setPhone(up.phone());
+            case MANAGER -> {
+                if (isSameUser) {
+                    if (!updateRequest.userRole().equals(targetRole)) {
+                        throw new AccessDeniedException("Manager cannot change their own role!");
+                    }
+                } else {
+                    if (targetRole != UserRole.UTILIZATOR) {
+                        throw new AccessDeniedException("Manager can only update UTILIZATOR accounts!");
+                    }
+                    if (!updateRequest.userRole().equals(targetRole)) {
+                        throw new AccessDeniedException("Manager cannot change user roles!");
+                    }
+                }
+            }
+            case UTILIZATOR -> {
+                if (!isSameUser) {
+                    throw new AccessDeniedException("UTILIZATOR can only update their own account!");
+                }
+                if (!updateRequest.userRole().equals(targetRole)) {
+                    throw new AccessDeniedException("UTILIZATOR cannot change their role!");
+                }
+            }
+            default -> throw new AccessDeniedException("Invalid role for user update!");
+        }
+    }
 
-        userRepository.save(user);
+    private void updateUserFields(User user, UpdateUserRequest request, User currentUser) {
+        user.setFullName(request.fullName());
+        user.setEmail(request.email());
+        user.setPhone(request.phone());
 
-        return UserMapper.userToResponseDto(user);
+        if (request.password() != null && !request.password().trim().isEmpty()) {
+            user.setPassword(request.password());
+        }
+
+        boolean isSameUser = currentUser.getEmail().equals(user.getEmail());
+        if (!isSameUser) {
+            user.setUserRole(request.userRole());
+        }
+    }
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NoUserFound("User not found"));
     }
 }

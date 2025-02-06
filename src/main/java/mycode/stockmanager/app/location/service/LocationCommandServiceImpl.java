@@ -1,6 +1,7 @@
 package mycode.stockmanager.app.location.service;
 
 import lombok.AllArgsConstructor;
+import mycode.stockmanager.app.articles.dtos.ImportResponse;
 import mycode.stockmanager.app.location.dtos.CreateLocationRequest;
 import mycode.stockmanager.app.location.dtos.LocationResponse;
 import mycode.stockmanager.app.location.dtos.UpdateLocationRequest;
@@ -17,14 +18,19 @@ import mycode.stockmanager.app.users.model.User;
 import mycode.stockmanager.app.users.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+import java.util.ArrayList;
 import java.util.Optional;
 
 @AllArgsConstructor
 @Service
-public class LocationCommandServiceImpl implements LocationCommandService{
+public class LocationCommandServiceImpl implements LocationCommandService {
 
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
@@ -47,6 +53,7 @@ public class LocationCommandServiceImpl implements LocationCommandService{
         return userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new NoUserFound("User not found"));
     }
+
 
     @Override
     public LocationResponse createLocation(CreateLocationRequest createLocationRequest) {
@@ -71,8 +78,6 @@ public class LocationCommandServiceImpl implements LocationCommandService{
     public LocationResponse updateLocation(UpdateLocationRequest updateLocationRequest, long id) {
         User user = getAuthenticatedUser();
 
-        Location location = locationRepository.findById(id)
-                .orElseThrow(() -> new NoLocationFound("No location with this id found"));
 
         if(updateLocationRequest.code() != null && !updateLocationRequest.code().equals(location.getCode())) {
             Optional<Location> locationByCode = locationRepository.findByCode(updateLocationRequest.code());
@@ -81,10 +86,10 @@ public class LocationCommandServiceImpl implements LocationCommandService{
             }
         }
 
+
         location.setCode(updateLocationRequest.code());
-
         locationRepository.save(location);
-
+        User user = getAuthenticatedUser();
         String message = "User: " + user.getEmail() + " updated article with code: " + location.getCode();
         createAndSaveNotification(user, message);
 
@@ -118,5 +123,36 @@ public class LocationCommandServiceImpl implements LocationCommandService{
         String message = "User: " + user.getEmail() + " deleted all locations";
         createAndSaveNotification(user, message);
     }
+
+        int importedCount = 0;
+            Sheet sheet = workbook.getSheetAt(0);
+            int firstDataRow = 4;
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) {
+                    continue;
+                }
+                if (codeCell == null) {
+                    skippedRows.add("Row " + rowIndex + " skipped: missing code.");
+                    continue;
+                }
+                    codeValue = String.valueOf((long) codeCell.getNumericCellValue());
+                } else {
+                    codeValue = codeCell.getStringCellValue().trim();
+                }
+                CreateLocationRequest createRequest = new CreateLocationRequest(codeValue);
+
+                try {
+                    createLocation(createRequest);
+                    importedCount++;
+                } catch (Exception e) {
+                    skippedRows.add("Row " + rowIndex + " with code " + codeValue + " skipped: " + e.getMessage());
+                }
+            }
+
+            String message = "User: " + user.getEmail() + " imported " + importedCount + " locations from Excel.";
+            throw new RuntimeException("Failed to read Excel file: " + e.getMessage(), e);
+        }
+
+        return new ImportResponse(importedCount, skippedRows);
 
 }

@@ -2,18 +2,21 @@ package mycode.stockmanager.app.articles.service;
 
 import mycode.stockmanager.app.articles.dtos.ArticleResponse;
 import mycode.stockmanager.app.articles.dtos.CreateArticleRequest;
+import mycode.stockmanager.app.articles.dtos.ImportResponse;
 import mycode.stockmanager.app.articles.dtos.UpdateArticleRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface ArticleCommandService {
 
-    ArticleResponse createArticle(CreateArticleRequest createArticleRequest, long userId);
+    ArticleResponse createArticle(CreateArticleRequest createArticleRequest);
 
-    ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest, long id, long userId);
+    ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest, long id);
 
-    ArticleResponse deleteArticleByCode(String code);
+    String  deleteArticleByCode(String code);
 
-    ArticleResponse deleteArticleById(long id,long userId);
+    ImportResponse importArticlesFromExcel(MultipartFile file);
 
-    void deleteAllArticlesAndResetSequence(long userId);
+
+    void deleteAllArticlesAndResetSequence();
 
 }

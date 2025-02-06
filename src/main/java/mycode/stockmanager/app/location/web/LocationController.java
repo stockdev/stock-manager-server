@@ -2,6 +2,7 @@ package mycode.stockmanager.app.location.web;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import mycode.stockmanager.app.articles.dtos.ImportResponse;
 import mycode.stockmanager.app.location.dtos.LocationResponse;
 import mycode.stockmanager.app.location.dtos.CreateLocationRequest;
 import mycode.stockmanager.app.location.dtos.LocationResponseList;
@@ -15,6 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/stock-manager/api/location")
@@ -24,18 +28,9 @@ public class LocationController {
     private final LocationCommandService locationCommandService;
     private final LocationQueryService locationQueryService;
 
-    @GetMapping("/getLocationById/{locationId}")
-    public ResponseEntity<LocationResponse> getLocationById(@PathVariable long locationId) {
-        return new ResponseEntity<>(locationQueryService.getLocationById(locationId), HttpStatus.OK);
-    }
-
-    @GetMapping("/getLocationByCode/{code}")
-    public ResponseEntity<LocationResponse> getLocationByCode(@PathVariable String code) {
-        return new ResponseEntity<>(locationQueryService.getLocationByCode(code), HttpStatus.OK);
-    }
 
     @GetMapping("/getAllLocations")
-    public ResponseEntity<LocationResponseList> getAllLocations(){
+    public ResponseEntity<LocationResponseList> getAllLocations() {
         return new ResponseEntity<>(locationQueryService.getAllLocations(), HttpStatus.OK);
     }
 
@@ -49,7 +44,7 @@ public class LocationController {
     @PutMapping("/updateLocation/{locationId}")
     public ResponseEntity<LocationResponse> updateLocation(@PathVariable long locationId, @RequestBody UpdateLocationRequest updateLocationRequest) {
         return new ResponseEntity<>(locationCommandService.updateLocation(updateLocationRequest, locationId), HttpStatus.OK);
-    }
+        return new ResponseEntity<>(locationCommandService.updateLocation(updateLocationRequest, code), HttpStatus.OK);
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/deleteLocationByCode/{locationCode}")
@@ -58,6 +53,28 @@ public class LocationController {
     }
 
     @GetMapping("/exportLocations")
+    public ResponseEntity<?> exportLocations(HttpServletResponse response) {
+    public ResponseEntity<?> deleteAllArticles() {
+        locationCommandService.deleteAllLocationsAndResetSequence();
+        return ResponseEntity.ok("Deleted all locations");
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PostMapping("/importExcel")
+    public ResponseEntity<ImportResponse> importExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            ImportResponse importResponse = locationCommandService.importLocationsFromExcel(file);
+            return ResponseEntity.ok(importResponse);
+        } catch (Exception e) {
+            List<String> errorList = List.of("Error importing: " + e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ImportResponse(0, errorList));
+        }
+    }
+
+
+    @GetMapping("/exportLocations/")
     public ResponseEntity<?> exportLocations(HttpServletResponse response) {
         try {
 
@@ -91,12 +108,8 @@ public class LocationController {
                     .body("An error occurred while exporting locations: " + e.getMessage());
         }
     }
-
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/deleteAllLocations")
     public ResponseEntity<String> deleteAllLocations(){
         locationCommandService.deleteAllLocationsAndResetSequence();
-
-        return ResponseEntity.ok("Deleted all locations");
-    }
 }

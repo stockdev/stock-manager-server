@@ -31,6 +31,9 @@ public class StockManagerApplication {
 	BCryptPasswordEncoder bCryptPasswordEncoder(){
 		return  new BCryptPasswordEncoder();
 	}
+
+
+	@Bean
 	public CorsFilter corsFilter() {
 		UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
