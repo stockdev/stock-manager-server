@@ -124,35 +124,6 @@ public class LocationCommandServiceImpl implements LocationCommandService {
         createAndSaveNotification(user, message);
     }
 
-        int importedCount = 0;
-            Sheet sheet = workbook.getSheetAt(0);
-            int firstDataRow = 4;
-                Row row = sheet.getRow(rowIndex);
-                if (row == null) {
-                    continue;
-                }
-                if (codeCell == null) {
-                    skippedRows.add("Row " + rowIndex + " skipped: missing code.");
-                    continue;
-                }
-                    codeValue = String.valueOf((long) codeCell.getNumericCellValue());
-                } else {
-                    codeValue = codeCell.getStringCellValue().trim();
-                }
-                CreateLocationRequest createRequest = new CreateLocationRequest(codeValue);
 
-                try {
-                    createLocation(createRequest);
-                    importedCount++;
-                } catch (Exception e) {
-                    skippedRows.add("Row " + rowIndex + " with code " + codeValue + " skipped: " + e.getMessage());
-                }
-            }
-
-            String message = "User: " + user.getEmail() + " imported " + importedCount + " locations from Excel.";
-            throw new RuntimeException("Failed to read Excel file: " + e.getMessage(), e);
-        }
-
-        return new ImportResponse(importedCount, skippedRows);
 
 }
