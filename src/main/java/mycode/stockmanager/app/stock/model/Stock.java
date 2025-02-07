@@ -66,12 +66,12 @@ public class Stock {
     )
     private SubStockType subStockType;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne()
     @JoinColumn(name = "article_code", referencedColumnName = "code", nullable = false)
     @JsonManagedReference
     private Article article;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne()
     @JoinColumn(name = "location_code", referencedColumnName = "code", nullable = false)
     @JsonManagedReference
     private Location location;

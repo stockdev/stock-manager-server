@@ -31,7 +31,7 @@ public class Location {
     private String code;
 
 
-    @OneToOne(mappedBy = "location",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "location")
     @JsonBackReference
     private Stock stock;
 

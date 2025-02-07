@@ -40,7 +40,7 @@ public class Article {
     private String name;
 
 
-    @OneToOne(mappedBy = "article",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "article")
     @JsonBackReference
     private Stock stock;
 
