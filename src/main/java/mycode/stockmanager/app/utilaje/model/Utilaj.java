@@ -23,6 +23,13 @@ public class Utilaj {
 
 
     @Column(
+            name = "code",
+            nullable = false,
+            unique = true
+    )
+    private String code;
+
+    @Column(
             name = "name",
             nullable = false
     )

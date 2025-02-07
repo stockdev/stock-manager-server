@@ -9,4 +9,6 @@ public interface UtilajeRepository extends JpaRepository<Utilaj, Long> {
 
     Optional<Utilaj> findUtilajeById(Long id);
 
+    Optional<Utilaj> findByCode(String code);
+
 }

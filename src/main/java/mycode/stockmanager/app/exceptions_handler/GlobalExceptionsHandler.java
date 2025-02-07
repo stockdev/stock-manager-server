@@ -11,6 +11,7 @@ import mycode.stockmanager.app.users.exceptions.AccessDeniedException;
 import mycode.stockmanager.app.users.exceptions.NoUserFound;
 import mycode.stockmanager.app.users.exceptions.UserAlreadyExists;
 import mycode.stockmanager.app.utilaje.exceptions.NoUtilajFound;
+import mycode.stockmanager.app.utilaje.exceptions.UtilajAlreadyExists;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -93,6 +94,15 @@ public class GlobalExceptionsHandler {
     public ResponseEntity<Object> handleNotFoundNotificationException(NotFoundNotification exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+
+
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({UtilajAlreadyExists.class})
+    public ResponseEntity<Object> handleUtilajAlreadyExistsException(UtilajAlreadyExists exception) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(exception.getMessage());
     }
 }

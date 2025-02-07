@@ -18,12 +18,14 @@ import mycode.stockmanager.app.users.model.User;
 import mycode.stockmanager.app.users.repository.UserRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.checkerframework.checker.nullness.Opt;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,16 @@ public class LocationCommandServiceImpl implements LocationCommandService {
                 .orElseThrow(() -> new NoUserFound("User not found"));
     }
 
+    private void createLocationWithoutNotification(CreateLocationRequest createLocationRequest) {
+        Optional<Location> locationByCode = locationRepository.findByCode(createLocationRequest.code());
+
+        if(locationByCode.isPresent()){
+            throw new LocationAlreadyExists("Location with this code already exists, try again with a different code");
+        }
+
+        Location location = LocationMapper.createLocationRequestToLocation(createLocationRequest);
+        locationRepository.saveAndFlush(location);
+    }
 
     @Override
     public LocationResponse createLocation(CreateLocationRequest createLocationRequest) {
@@ -154,7 +166,7 @@ public class LocationCommandServiceImpl implements LocationCommandService {
                 CreateLocationRequest createRequest = new CreateLocationRequest(codeValue);
 
                 try {
-                    createLocation(createRequest);
+                    createLocationWithoutNotification(createRequest);
                     importedCount++;
                 } catch (Exception e) {
                     skippedRows.add("Row " + rowIndex + " with code " + codeValue + " skipped: " + e.getMessage());

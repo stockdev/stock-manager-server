@@ -16,5 +16,6 @@ public interface LocationCommandService  {
 
     void deleteAllLocationsAndResetSequence();
 
+
     ImportResponse importLocationsFromExcel(MultipartFile file);
 }

@@ -10,6 +10,7 @@ import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
 import mycode.stockmanager.app.articles.mapper.ArticleMapper;
 import mycode.stockmanager.app.articles.model.Article;
 import mycode.stockmanager.app.articles.repository.ArticleRepository;
+import mycode.stockmanager.app.location.exceptions.NoLocationFound;
 import mycode.stockmanager.app.notification.model.Notification;
 import mycode.stockmanager.app.notification.enums.NotificationType;
 import mycode.stockmanager.app.notification.repository.NotificationRepository;
@@ -53,6 +54,17 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
         return userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new NoUserFound("User not found"));
     }
+
+    private void createArticleWithoutNotification(CreateArticleRequest createArticleRequest) {
+        Optional<Article> articleByCode = articleRepository.findByCode(createArticleRequest.code());
+
+        if (articleByCode.isPresent()) {
+            throw new AlreadyExistsArticle("Article with this code already exists try again with different code");
+        }
+        Article article = ArticleMapper.createArticleRequestToArticle(createArticleRequest);
+        articleRepository.saveAndFlush(article);
+    }
+
 
     @Override
     public ArticleResponse createArticle(CreateArticleRequest createArticleRequest) {
@@ -148,7 +160,7 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
                 CreateArticleRequest createRequest = new CreateArticleRequest(codeValue, nameValue);
                 try {
-                    createArticle(createRequest);
+                    createArticleWithoutNotification(createRequest);
                     importedCount++;
                 } catch (Exception e) {
                     skippedRows.add("Row " + rowIndex + " with code "
@@ -166,8 +178,6 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
 
         return new ImportResponse(importedCount, skippedRows);
     }
-
-
 
     @Transactional
     public void deleteAllArticlesAndResetSequence() {
