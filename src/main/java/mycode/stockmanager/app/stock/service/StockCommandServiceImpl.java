@@ -5,6 +5,8 @@ import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
 import mycode.stockmanager.app.articles.repository.ArticleRepository;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
 import mycode.stockmanager.app.location.repository.LocationRepository;
+import mycode.stockmanager.app.magazie.model.Magazie;
+import mycode.stockmanager.app.magazie.repository.MagazieRepository;
 import mycode.stockmanager.app.notification.model.Notification;
 import mycode.stockmanager.app.notification.enums.NotificationType;
 import mycode.stockmanager.app.notification.repository.NotificationRepository;
@@ -37,6 +39,7 @@ public class StockCommandServiceImpl implements StockCommandService{
     LocationRepository locationRepository;
     NotificationRepository notificationRepository;
     UserRepository userRepository;
+    MagazieRepository magazieRepository;
 
 
     private void createAndSaveNotification(User user, String message) {
@@ -78,6 +81,16 @@ public class StockCommandServiceImpl implements StockCommandService{
 
 
         stockRepository.saveAndFlush(stock);
+
+        if(stock.getStockType().equals(StockType.IN)){
+            Magazie magazie = Magazie.builder()
+                    .articleCode(stock.getArticle().getCode())
+                    .locationCode(stock.getLocation().getCode())
+                    .stock(stock.getQuantity())
+                    .build();
+
+            magazieRepository.saveAndFlush(magazie);
+        }
 
         User user = getAuthenticatedUser();
 

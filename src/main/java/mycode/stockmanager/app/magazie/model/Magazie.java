@@ -23,4 +23,28 @@ public class Magazie {
     private Long id;
 
 
+    @Column(
+            name = "article_code",
+            nullable = false
+    )
+    private String articleCode;
+
+    @Column(
+            name = "location_code",
+            nullable = false
+    )
+    private String locationCode;
+
+    @Column(
+            name = "stoc",
+            nullable = false
+    )
+    private int stock;
+
+
+    @Column(
+            name = "total_stock",
+            nullable = false
+    )
+    private int totalStock;
 }
