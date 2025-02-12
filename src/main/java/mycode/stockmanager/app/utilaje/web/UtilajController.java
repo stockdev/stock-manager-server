@@ -35,8 +35,8 @@ public class UtilajController {
         return new ResponseEntity<>(utilajCommandService.createUtilaj(createUtilajRequest), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/deleteUtilajById/{utilajCode}")
-    ResponseEntity<String> deleteUtilajById(@PathVariable String utilajCode){
+    @DeleteMapping("/deleteUtilajByCode/{utilajCode}")
+    ResponseEntity<String> deleteUtilajByCode(@PathVariable String utilajCode){
         return new ResponseEntity<>(utilajCommandService.deleteUtilajByCode(utilajCode), HttpStatus.OK);
     }
 

@@ -11,7 +11,7 @@ public class ArticleMapper {
                 .code(article.getCode())
                 .id(article.getId())
                 .name(article.getName())
-                .stock(article.getStock()).build();
+                .build();
     }
 
     public static Article createArticleRequestToArticle(CreateArticleRequest createArticleRequest){

@@ -95,8 +95,8 @@ public class StockCommandServiceImpl implements StockCommandService{
 
             magazie.setStock(magazie.getStock() + stock.getQuantity());
 
-            Integer totalStock = magazieRepository.sumStockByArticleCode(stock.getArticle().getCode());
-            magazie.setTotalStock(totalStock != null ? totalStock : 0);
+
+
 
             magazieRepository.saveAndFlush(magazie);
         }
