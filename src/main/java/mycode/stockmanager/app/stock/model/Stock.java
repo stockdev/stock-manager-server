@@ -66,12 +66,13 @@ public class Stock {
     )
     private SubStockType subStockType;
 
-    @OneToOne()
+    @ManyToOne
     @JoinColumn(name = "article_code", referencedColumnName = "code", nullable = false)
     @JsonManagedReference
     private Article article;
 
-    @OneToOne()
+
+    @OneToOne
     @JoinColumn(name = "location_code", referencedColumnName = "code", nullable = false)
     @JsonManagedReference
     private Location location;

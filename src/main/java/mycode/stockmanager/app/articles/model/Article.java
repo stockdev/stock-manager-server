@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.stock.model.Stock;
 
+import java.util.List;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,9 +42,9 @@ public class Article {
     private String name;
 
 
-    @OneToOne(mappedBy = "article")
+    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonBackReference
-    private Stock stock;
+    private List<Stock> stocks;
 
 
 

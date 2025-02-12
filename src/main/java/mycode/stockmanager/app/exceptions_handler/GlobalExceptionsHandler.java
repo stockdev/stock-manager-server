@@ -4,6 +4,7 @@ import mycode.stockmanager.app.articles.exceptions.AlreadyExistsArticle;
 import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
 import mycode.stockmanager.app.location.exceptions.LocationAlreadyExists;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
+import mycode.stockmanager.app.magazie.exceptions.MagazieNotFound;
 import mycode.stockmanager.app.notification.exceptions.NotFoundNotification;
 import mycode.stockmanager.app.stock.exceptions.InvalidStockTransaction;
 import mycode.stockmanager.app.stock.exceptions.NoStockFound;
@@ -103,6 +104,13 @@ public class GlobalExceptionsHandler {
     public ResponseEntity<Object> handleUtilajAlreadyExistsException(UtilajAlreadyExists exception) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler({MagazieNotFound.class})
+    public ResponseEntity<Object> handleMagazieNotFoundException(MagazieNotFound exception) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(exception.getMessage());
     }
 }

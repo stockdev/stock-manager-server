@@ -83,11 +83,20 @@ public class StockCommandServiceImpl implements StockCommandService{
         stockRepository.saveAndFlush(stock);
 
         if(stock.getStockType().equals(StockType.IN)){
-            Magazie magazie = Magazie.builder()
-                    .articleCode(stock.getArticle().getCode())
-                    .locationCode(stock.getLocation().getCode())
-                    .stock(stock.getQuantity())
-                    .build();
+            Magazie magazie = magazieRepository.findByArticleCodeAndLocationCode(
+                            stock.getArticle().getCode(), stock.getLocation().getCode())
+                    .orElse(Magazie.builder()
+                            .articleCode(stock.getArticle().getCode())
+                            .locationCode(stock.getLocation().getCode())
+                            .stock(0)
+                            .totalStock(0)
+                            .build());
+
+
+            magazie.setStock(magazie.getStock() + stock.getQuantity());
+
+            Integer totalStock = magazieRepository.sumStockByArticleCode(stock.getArticle().getCode());
+            magazie.setTotalStock(totalStock != null ? totalStock : 0);
 
             magazieRepository.saveAndFlush(magazie);
         }
