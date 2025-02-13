@@ -43,9 +43,9 @@ public class ArticleController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PutMapping("/updateArticle/{articleId}")
-    public ResponseEntity<ArticleResponse> updateArticle(@PathVariable long articleId, @RequestBody UpdateArticleRequest updateArticleRequest) {
-        return new ResponseEntity<>(articleCommandService.updateArticle(updateArticleRequest, articleId), HttpStatus.OK);
+    @PutMapping("/updateArticle/{articleCode}")
+    public ResponseEntity<ArticleResponse> updateArticle(@PathVariable String articleCode, @RequestBody UpdateArticleRequest updateArticleRequest) {
+        return new ResponseEntity<>(articleCommandService.updateArticle(updateArticleRequest, articleCode), HttpStatus.OK);
     }
 
 
@@ -76,4 +76,14 @@ public class ArticleController {
         }
     }
 
+
+    @GetMapping("/printMagazieResponseForArticle/{articleCode}")
+    public ResponseEntity<MagazieResponseList> printMagazieResponseForArticle(@PathVariable String articleCode){
+        return new ResponseEntity<>(articleQueryService.printMagazieResponseForArticle(articleCode), HttpStatus.OK);
+    }
+
+    @GetMapping("/getMagazieTotalForArticle/{articleCode}")
+    public ResponseEntity<MagazieTotalResponse> getMagazieTotalForArticle(@PathVariable String articleCode){
+        return new ResponseEntity<>(articleQueryService.getMagazieTotalForArticle(articleCode), HttpStatus.OK);
+    }
 }

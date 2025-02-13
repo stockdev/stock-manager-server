@@ -2,11 +2,10 @@ package mycode.stockmanager.app.stock.service;
 
 import lombok.AllArgsConstructor;
 import mycode.stockmanager.app.articles.exceptions.NoArticleFound;
+import mycode.stockmanager.app.articles.model.Article;
 import mycode.stockmanager.app.articles.repository.ArticleRepository;
 import mycode.stockmanager.app.location.exceptions.NoLocationFound;
 import mycode.stockmanager.app.location.repository.LocationRepository;
-import mycode.stockmanager.app.magazie.model.Magazie;
-import mycode.stockmanager.app.magazie.repository.MagazieRepository;
 import mycode.stockmanager.app.notification.model.Notification;
 import mycode.stockmanager.app.notification.enums.NotificationType;
 import mycode.stockmanager.app.notification.repository.NotificationRepository;
@@ -39,7 +38,6 @@ public class StockCommandServiceImpl implements StockCommandService{
     LocationRepository locationRepository;
     NotificationRepository notificationRepository;
     UserRepository userRepository;
-    MagazieRepository magazieRepository;
 
 
     private void createAndSaveNotification(User user, String message) {
@@ -64,13 +62,14 @@ public class StockCommandServiceImpl implements StockCommandService{
     public StockResponse createStockTransaction(CreateStockRequest createStockRequest) {
 
         isValidTransaction(createStockRequest.stockType(), createStockRequest.subStockType());
+        Article article= articleRepository.findByCode(createStockRequest.articleCode())
+                .orElseThrow(() -> new NoArticleFound("No article with this code found"));
 
 
         Stock stock = Stock.builder()
                 .stockType(createStockRequest.stockType())
                 .subStockType(createStockRequest.subStockType())
-                .article(articleRepository.findByCode(createStockRequest.articleCode())
-                        .orElseThrow(() -> new NoArticleFound("No article with this code found")))
+                .article(article)
                 .location(locationRepository.findByCode(createStockRequest.locationCode())
                         .orElseThrow(() -> new NoLocationFound("No location with this code found")))
                 .necessary(createStockRequest.necessary())
@@ -82,24 +81,7 @@ public class StockCommandServiceImpl implements StockCommandService{
 
         stockRepository.saveAndFlush(stock);
 
-        if(stock.getStockType().equals(StockType.IN)){
-            Magazie magazie = magazieRepository.findByArticleCodeAndLocationCode(
-                            stock.getArticle().getCode(), stock.getLocation().getCode())
-                    .orElse(Magazie.builder()
-                            .articleCode(stock.getArticle().getCode())
-                            .locationCode(stock.getLocation().getCode())
-                            .stock(0)
-                            .totalStock(0)
-                            .build());
-
-
-            magazie.setStock(magazie.getStock() + stock.getQuantity());
-
-
-
-
-            magazieRepository.saveAndFlush(magazie);
-        }
+        article.addStock(stock);
 
         User user = getAuthenticatedUser();
 

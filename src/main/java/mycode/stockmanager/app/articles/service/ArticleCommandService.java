@@ -10,7 +10,7 @@ public interface ArticleCommandService {
 
     ArticleResponse createArticle(CreateArticleRequest createArticleRequest);
 
-    ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest, long id);
+    ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest, String articleCode);
 
     String  deleteArticleByCode(String code);
 

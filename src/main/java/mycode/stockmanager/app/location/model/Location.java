@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.stock.model.Stock;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -31,9 +34,24 @@ public class Location {
     private String code;
 
 
-    @OneToOne(mappedBy = "location")
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonBackReference
-    private Stock stock;
+    private List<Stock> stocks;
+
+    public void addStock(Stock stock) {
+        if (stock != null) {
+            if (stocks == null) {
+                stocks = new ArrayList<>();
+            }
+            stocks.add(stock);
+        }
+    }
+    public void removeStock(Stock stock) {
+        if (stock != null && stocks != null) {
+            stocks.remove(stock);
+            stock.setLocation(null);
+        }
+    }
 
 
 

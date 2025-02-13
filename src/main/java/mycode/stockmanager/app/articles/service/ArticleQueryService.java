@@ -1,7 +1,6 @@
 package mycode.stockmanager.app.articles.service;
 
-import mycode.stockmanager.app.articles.dtos.ArticleResponse;
-import mycode.stockmanager.app.articles.dtos.ArticleResponseList;
+import mycode.stockmanager.app.articles.dtos.*;
 
 public interface ArticleQueryService {
 
@@ -10,5 +9,9 @@ public interface ArticleQueryService {
 
 
     ArticleResponseList getArticles(int page, int size, String searchTerm);
+
+    MagazieResponseList printMagazieResponseForArticle(String articleCode);
+
+    MagazieTotalResponse getMagazieTotalForArticle(String articleCode);
 
 }

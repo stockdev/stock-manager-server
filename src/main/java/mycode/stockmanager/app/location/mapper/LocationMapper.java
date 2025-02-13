@@ -12,8 +12,7 @@ public class LocationMapper {
     public static LocationResponse locationToResponseDto(Location location){
         return LocationResponse.builder()
                 .code(location.getCode())
-                .id(location.getId())
-                .stock(location.getStock()).build();
+                .build();
     }
 
     public static Location createLocationRequestToLocation(CreateLocationRequest createLocationRequest){

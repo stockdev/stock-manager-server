@@ -72,7 +72,7 @@ public class Stock {
     private Article article;
 
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "location_code", referencedColumnName = "code", nullable = false)
     @JsonManagedReference
     private Location location;

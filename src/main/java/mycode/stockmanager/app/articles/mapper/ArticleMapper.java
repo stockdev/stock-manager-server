@@ -9,7 +9,6 @@ public class ArticleMapper {
     public static ArticleResponse articleToResponseDto(Article article){
         return ArticleResponse.builder()
                 .code(article.getCode())
-                .id(article.getId())
                 .name(article.getName())
                 .build();
     }

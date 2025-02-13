@@ -59,9 +59,9 @@ public class LocationController {
         return new ResponseEntity<>(locationCommandService.deleteLocationByCode(locationCode), HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/deleteAllLocations")
-    public ResponseEntity<?> deleteAllArticles() {
+    public ResponseEntity<?> deleteAllLocations() {
         locationCommandService.deleteAllLocationsAndResetSequence();
         return ResponseEntity.ok("Deleted all locations");
     }

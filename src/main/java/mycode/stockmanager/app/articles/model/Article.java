@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import mycode.stockmanager.app.stock.model.Stock;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -46,6 +47,19 @@ public class Article {
     @JsonBackReference
     private List<Stock> stocks;
 
-
+    public void addStock(Stock stock) {
+        if (stock != null) {
+            if (stocks == null) {
+                stocks = new ArrayList<>();
+            }
+            stocks.add(stock);
+        }
+    }
+    public void removeStock(Stock stock) {
+        if (stock != null && stocks != null) {
+            stocks.remove(stock);
+            stock.setArticle(null);
+        }
+    }
 
 }

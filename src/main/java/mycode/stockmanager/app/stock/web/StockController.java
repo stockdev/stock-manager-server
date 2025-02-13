@@ -35,11 +35,13 @@ public class StockController {
         return new ResponseEntity<>(stockCommandService.createStockTransaction(createStockRequest), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/updateStockTransaction/{stockId}")
     public ResponseEntity<StockResponse> updateStock(@RequestBody UpdateStockRequest updateStockRequest, @PathVariable Long stockId){
         return new ResponseEntity<>(stockCommandService.updateStockTransaction(stockId,updateStockRequest), HttpStatus.ACCEPTED);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/deleteStockTransaction/{stockID}")
     public ResponseEntity<StockResponse> deleteStock(@PathVariable Long stockID){
         return new ResponseEntity<>(stockCommandService.deleteStockTransaction(stockID), HttpStatus.OK);

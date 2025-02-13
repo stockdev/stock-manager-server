@@ -84,10 +84,10 @@ public class ArticleCommandServiceImpl implements ArticleCommandService {
     }
 
     @Override
-    public ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest, long id) {
+    public ArticleResponse updateArticle(UpdateArticleRequest updateArticleRequest, String articleCode) {
         User user = getAuthenticatedUser();
 
-        Article article = articleRepository.findById(id)
+        Article article = articleRepository.findByCode(articleCode)
                 .orElseThrow(() -> new NoArticleFound("No article with this id found"));
 
         if (updateArticleRequest.code() != null && !updateArticleRequest.code().equals(article.getCode())) {
