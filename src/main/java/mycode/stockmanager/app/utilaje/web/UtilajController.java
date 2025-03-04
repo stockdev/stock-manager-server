@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import mycode.stockmanager.app.articles.dtos.ImportResponse;
 import mycode.stockmanager.app.utilaje.dtos.CreateUtilajRequest;
 import mycode.stockmanager.app.utilaje.dtos.UtilajResponseDto;
+import mycode.stockmanager.app.utilaje.dtos.UtilajeResponseList;
 import mycode.stockmanager.app.utilaje.services.UtilajCommandService;
 import mycode.stockmanager.app.utilaje.services.UtilajQueryService;
 import org.springframework.http.HttpStatus;
@@ -24,20 +25,38 @@ public class UtilajController {
     private UtilajCommandService utilajCommandService;
     private UtilajQueryService utilajQueryService;
 
+    @GetMapping("/getAllUtilaje")
+    public ResponseEntity<UtilajeResponseList> getAllUtilaje(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) String searchTerm) {
 
-    @GetMapping("/getUtilajById/{utilajId}")
-    ResponseEntity<UtilajResponseDto> getUtilajById(@PathVariable Long utilajId){
-        return new ResponseEntity<>(utilajQueryService.getUtilajById(utilajId), HttpStatus.OK);
+        UtilajeResponseList utilaje = utilajQueryService.getAllUtilaje(page, size, searchTerm);
+        return new ResponseEntity<>(utilaje, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/getUtilajByCode/{utilajCode}")
+    ResponseEntity<UtilajResponseDto> getUtilajByCode(@PathVariable String utilajCode) {
+        return new ResponseEntity<>(utilajQueryService.getUtilajByCode(utilajCode), HttpStatus.OK);
     }
 
     @PostMapping("/createUtilaj")
-    ResponseEntity<UtilajResponseDto> createUtilaj(@RequestBody CreateUtilajRequest createUtilajRequest){
+    ResponseEntity<UtilajResponseDto> createUtilaj(@RequestBody CreateUtilajRequest createUtilajRequest) {
         return new ResponseEntity<>(utilajCommandService.createUtilaj(createUtilajRequest), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/deleteUtilajByCode/{utilajCode}")
-    ResponseEntity<String> deleteUtilajByCode(@PathVariable String utilajCode){
+    ResponseEntity<String> deleteUtilajByCode(@PathVariable String utilajCode) {
         return new ResponseEntity<>(utilajCommandService.deleteUtilajByCode(utilajCode), HttpStatus.OK);
+    }
+
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @DeleteMapping("/deleteAllUtilaje")
+    ResponseEntity<String> deleteAllUtilaje() {
+        utilajCommandService.deleteAllUtilaje();
+        return ResponseEntity.ok("Deleted all articles");
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")

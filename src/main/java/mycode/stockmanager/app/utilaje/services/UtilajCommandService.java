@@ -13,4 +13,6 @@ public interface UtilajCommandService {
     String deleteUtilajByCode(String code);
 
     ImportResponse importUtilajeFromExcel(MultipartFile file);
+
+    void deleteAllUtilaje();
 }
