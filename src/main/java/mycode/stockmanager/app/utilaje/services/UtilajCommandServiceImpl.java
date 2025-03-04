@@ -113,6 +113,16 @@ public class UtilajCommandServiceImpl implements UtilajCommandService{
     }
 
     @Override
+    public void deleteAllUtilaje() {
+        User user = getAuthenticatedUser();
+        utilajeRepository.deleteAll();
+        utilajeRepository.resetUtilajeIdSequence();
+
+        String message = "User: " + user.getEmail() + " deleted all utilaje";
+        createAndSaveNotification(user, message);
+    }
+
+    @Override
     public ImportResponse importUtilajeFromExcel(MultipartFile file) {
         User user = getAuthenticatedUser();
         List<String> skippedRows = new ArrayList<>();

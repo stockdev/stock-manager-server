@@ -37,18 +37,26 @@ public class UtilajController {
 
 
     @GetMapping("/getUtilajByCode/{utilajCode}")
-    ResponseEntity<UtilajResponseDto> getUtilajByCode(@PathVariable String utilajCode){
+    ResponseEntity<UtilajResponseDto> getUtilajByCode(@PathVariable String utilajCode) {
         return new ResponseEntity<>(utilajQueryService.getUtilajByCode(utilajCode), HttpStatus.OK);
     }
 
     @PostMapping("/createUtilaj")
-    ResponseEntity<UtilajResponseDto> createUtilaj(@RequestBody CreateUtilajRequest createUtilajRequest){
+    ResponseEntity<UtilajResponseDto> createUtilaj(@RequestBody CreateUtilajRequest createUtilajRequest) {
         return new ResponseEntity<>(utilajCommandService.createUtilaj(createUtilajRequest), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/deleteUtilajByCode/{utilajCode}")
-    ResponseEntity<String> deleteUtilajByCode(@PathVariable String utilajCode){
+    ResponseEntity<String> deleteUtilajByCode(@PathVariable String utilajCode) {
         return new ResponseEntity<>(utilajCommandService.deleteUtilajByCode(utilajCode), HttpStatus.OK);
+    }
+
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @DeleteMapping("/deleteAllUtilaje")
+    ResponseEntity<String> deleteAllUtilaje() {
+        utilajCommandService.deleteAllUtilaje();
+        return ResponseEntity.ok("Deleted all articles");
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
