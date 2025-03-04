@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import mycode.stockmanager.app.articles.dtos.ImportResponse;
 import mycode.stockmanager.app.utilaje.dtos.CreateUtilajRequest;
 import mycode.stockmanager.app.utilaje.dtos.UtilajResponseDto;
+import mycode.stockmanager.app.utilaje.dtos.UtilajeResponseList;
 import mycode.stockmanager.app.utilaje.services.UtilajCommandService;
 import mycode.stockmanager.app.utilaje.services.UtilajQueryService;
 import org.springframework.http.HttpStatus;
@@ -25,12 +26,12 @@ public class UtilajController {
     private UtilajQueryService utilajQueryService;
 
     @GetMapping("/getAllUtilaje")
-    public ResponseEntity<List<UtilajResponseDto>> getAllUtilaje(
+    public ResponseEntity<UtilajeResponseList> getAllUtilaje(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
             @RequestParam(required = false) String searchTerm) {
 
-        List<UtilajResponseDto> utilaje = utilajQueryService.getAllUtilaje(page, size, searchTerm);
+        UtilajeResponseList utilaje = utilajQueryService.getAllUtilaje(page, size, searchTerm);
         return new ResponseEntity<>(utilaje, HttpStatus.OK);
     }
 
