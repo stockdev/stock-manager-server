@@ -1,6 +1,5 @@
 package mycode.stockmanager.app.articles.repository;
 
-import mycode.stockmanager.app.articles.dtos.ArticleResponseList;
 import mycode.stockmanager.app.articles.model.Article;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +13,6 @@ import java.util.Optional;
 @Repository
 public interface ArticleRepository extends JpaRepository<Article, Integer> {
 
-    Optional<Article> findById(Long id);
 
     Optional<Article> findByCode(String code);
 

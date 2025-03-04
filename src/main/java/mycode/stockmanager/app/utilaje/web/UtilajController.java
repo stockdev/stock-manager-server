@@ -24,10 +24,20 @@ public class UtilajController {
     private UtilajCommandService utilajCommandService;
     private UtilajQueryService utilajQueryService;
 
+    @GetMapping("/getAllUtilaje")
+    public ResponseEntity<List<UtilajResponseDto>> getAllUtilaje(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) String searchTerm) {
 
-    @GetMapping("/getUtilajById/{utilajId}")
-    ResponseEntity<UtilajResponseDto> getUtilajById(@PathVariable Long utilajId){
-        return new ResponseEntity<>(utilajQueryService.getUtilajById(utilajId), HttpStatus.OK);
+        List<UtilajResponseDto> utilaje = utilajQueryService.getAllUtilaje(page, size, searchTerm);
+        return new ResponseEntity<>(utilaje, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/getUtilajByCode/{utilajCode}")
+    ResponseEntity<UtilajResponseDto> getUtilajByCode(@PathVariable String utilajCode){
+        return new ResponseEntity<>(utilajQueryService.getUtilajByCode(utilajCode), HttpStatus.OK);
     }
 
     @PostMapping("/createUtilaj")
