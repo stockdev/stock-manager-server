@@ -3,6 +3,7 @@ package mycode.stockmanager.app.utilaje.services;
 
 import lombok.AllArgsConstructor;
 import mycode.stockmanager.app.utilaje.dtos.UtilajResponseDto;
+import mycode.stockmanager.app.utilaje.dtos.UtilajeResponseList;
 import mycode.stockmanager.app.utilaje.exceptions.NoUtilajFound;
 import mycode.stockmanager.app.utilaje.mapper.UtilajMapper;
 import mycode.stockmanager.app.utilaje.model.Utilaj;
@@ -28,7 +29,7 @@ public class UtilajQueryServiceImpl implements UtilajQueryService{
 
 
     @Override
-    public List<UtilajResponseDto> getAllUtilaje(int page, int size, String searchTerm) {
+    public UtilajeResponseList getAllUtilaje(int page, int size, String searchTerm) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
         Page<Utilaj> utilajPage;
 
@@ -46,7 +47,7 @@ public class UtilajQueryServiceImpl implements UtilajQueryService{
             throw new NoUtilajFound("No utilaje found");
         }
 
-        return UtilajMapper.utilajResponseDtoList(utilajPage.getContent());
+        return new UtilajeResponseList( UtilajMapper.utilajResponseDtoList(utilajPage.getContent()) , utilajPage.getNumber(), utilajPage.getTotalPages(), utilajPage.getTotalElements());
 
     }
 }
