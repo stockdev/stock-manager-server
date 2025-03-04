@@ -77,10 +77,6 @@ public class ArticleController {
     }
 
 
-    @GetMapping("/printMagazieResponseForArticle/{articleCode}")
-    public ResponseEntity<MagazieResponseList> printMagazieResponseForArticle(@PathVariable String articleCode){
-        return new ResponseEntity<>(articleQueryService.printMagazieResponseForArticle(articleCode), HttpStatus.OK);
-    }
 
     @GetMapping("/getMagazieTotalForArticle/{articleCode}")
     public ResponseEntity<MagazieTotalResponse> getMagazieTotalForArticle(@PathVariable String articleCode){

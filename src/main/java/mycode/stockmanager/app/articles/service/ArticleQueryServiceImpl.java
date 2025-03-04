@@ -60,36 +60,13 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
     }
 
     @Override
-    public MagazieResponseList printMagazieResponseForArticle(String articleCode) {
-        Article article = articleRepository.findByCode(articleCode)
-                .orElseThrow(() -> new NoArticleFound("No article with this code found"));
-
-        List<MagaziePrintResponse> list = new ArrayList<>();
-
-        if(!article.getStocks().isEmpty()){
-            List<Stock> stocks = article.getStocks();
-
-            stocks.forEach(stock -> {
-                if(stock.getStockType().equals(StockType.IN)) {
-                    list.add(MagaziePrintResponse.builder()
-                            .articleCode(stock.getArticle().getCode())
-                            .locationCode(stock.getLocation().getCode())
-                            .stock(stock.getQuantity()).build());
-                }
-            });
-        }else{
-            throw new NoArticleFound("Article has no stock transactions");
-        }
-
-        return MagazieResponseList.builder().list(list).build();
-    }
-
-    @Override
     public MagazieTotalResponse getMagazieTotalForArticle(String articleCode) {
         Article article = articleRepository.findByCode(articleCode)
                 .orElseThrow(() -> new NoArticleFound("No article with this code found"));
 
-        int stockIn = 0, stockOut = 0, finalStock=0, stockProduction = 0;
+        int stockIn = 0, stockOut = 0, finalStock, stockProduction = 0;
+
+        List<MagaziePrintResponse> list = getMagaziePrintResponses(article);
 
 
         if(!article.getStocks().isEmpty()){
@@ -116,7 +93,27 @@ public class ArticleQueryServiceImpl implements ArticleQueryService {
                 .finalStock(finalStock)
                 .stockIn(stockIn)
                 .stockOut(stockOut)
+                .locations(list)
                 .stockProduction(stockProduction).build();
+    }
+
+    private static List<MagaziePrintResponse> getMagaziePrintResponses(Article article) {
+        List<MagaziePrintResponse> list = new ArrayList<>();
+
+        if(!article.getStocks().isEmpty()){
+            List<Stock> stocks = article.getStocks();
+
+            stocks.forEach(stock -> {
+                if(stock.getStockType().equals(StockType.IN)) {
+                    list.add(MagaziePrintResponse.builder()
+                            .locationCode(stock.getLocation().getCode())
+                            .stock(stock.getQuantity()).build());
+                }
+            });
+        }else{
+            throw new NoArticleFound("Article has no stock transactions");
+        }
+        return list;
     }
 
 }

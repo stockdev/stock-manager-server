@@ -10,7 +10,6 @@ public interface ArticleQueryService {
 
     ArticleResponseList getArticles(int page, int size, String searchTerm);
 
-    MagazieResponseList printMagazieResponseForArticle(String articleCode);
 
     MagazieTotalResponse getMagazieTotalForArticle(String articleCode);
 
