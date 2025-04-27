@@ -28,7 +28,7 @@ public class StockManagerApplication {
 	}
 
 
-	
+
 	@Bean
 	BCryptPasswordEncoder bCryptPasswordEncoder(){
 		return  new BCryptPasswordEncoder();
