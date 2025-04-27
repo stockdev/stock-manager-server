@@ -37,7 +37,7 @@ jobs:
       - name: Checkout other repository
         uses: actions/checkout@v2
         with:
-          repository: 'stockamanager/stock-manager-docker-compose'
+          repository: 'stockdev/stock-manager-docker-compose'
           token: ${{ secrets.DEPLOY_ACCESS_TOKEN }}
           path: 'stock-manager-docker-compose'
 
