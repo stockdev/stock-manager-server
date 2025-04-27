@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>mycode</groupId>
-	<artifactId>stock-manager</artifactId>
+	<artifactId>stock-manager-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>stock-manager</name>
-	<description>stock-manager</description>
+	<name>stock-manager-server</name>
+	<description>stock-manager-server</description>
 	<url/>
 	<licenses>
 		<license/>
