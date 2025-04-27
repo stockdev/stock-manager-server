@@ -2,7 +2,7 @@ name: CD - Deploy stock-manager-server API
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 permissions:
